@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Formulário de Viagem ASAPH</title>
+    <style>
+        :root {
+            --asaph-dark: #121212;
+            --asaph-card: #1e1e1e;
+            --asaph-gray: #b0b0b0;
+            --asaph-light: #e0e0e0;
+            --asaph-accent: #4dabf7;
+            --asaph-white: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--asaph-dark);
+            color: var(--asaph-gray);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        
+        .header h1 {
+            color: var(--asaph-light);
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: var(--asaph-gray);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: var(--asaph-card);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--asaph-light);
+        }
+        
+        input[type="text"], 
+        input[type="number"],
+        input[type="date"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #2a2a2a;
+            color: var(--asaph-light);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--asaph-accent);
+            box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background-color: var(--asaph-accent);
+            color: var(--asaph-dark);
+            padding: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            letter-spacing: 0.5px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #3d8fd6;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+        
+        .resultado {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background-color: #2a2a2a;
+            white-space: pre-line;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--asaph-light);
+        }
+        
+        .copy-btn {
+            width: 100%;
+            background-color: #333;
+            color: var(--asaph-light);
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background-color: #444;
+        }
+        
+        /* Estilos para o medidor de bateria */
+        .battery-meter {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 10px;
+            outline: none;
+            background: #333;
+        }
+        
+        .battery-meter::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--asaph-accent);
+            cursor: pointer;
+            border: 2px solid var(--asaph-card);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .battery-meter::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--asaph-accent);
+            cursor: pointer;
+            border: 2px solid var(--asaph-card);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .battery-value {
+            text-align: center;
+            font-weight: 500;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .battery-high {
+            color: #51cf66;
+        }
+        
+        .battery-medium {
+            color: #fcc419;
+        }
+        
+        .battery-low {
+            color: #ff6b6b;
+        }
+        
+        /* Esconder elementos quando necessário */
+        .hidden {
+            display: none;
+        }
+        
+        /* Footer estilo ASAPH */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--asaph-gray);
+            font-size: 0.8rem;
+            width: 100%;
+            padding: 20px 0;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+        
+        .footer strong {
+            font-weight: 600;
+            color: var(--asaph-light);
+        }
+        
+        /* Melhorias para mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Registro de Viagens</h1>
+        <p>ASAPH - Soluções em Tecnologia</p>
+    </div>
+    
+    <div class="form-container">
+        <form id="formViagem" onsubmit="return salvarRegistro(event)">
+            <div class="form-group">
+                <label for="nome" class="required-field">NOME:</label>
+                <select id="nome" name="nome" required>
+                    <option value="">Selecione seu nome</option>
+                    <option value="André">André</option>
+                    <option value="Cássio">Cássio</option>
+                    <option value="Dado">Dado</option>
+                    <option value="Danilo">Danilo</option>
+                    <option value="Dany Obbino">Dany Obbino</option>
+                    <option value="Fernando">Fernando</option>
+                    <option value="Giuseppe">Giuseppe</option>
+                    <option value="Guilherme Trindade">Guilherme Trindade</option>
+                    <option value="Leandro">Leandro</option>
+                    <option value="Leonardo Boto">Leonardo Boto</option>
+                    <option value="Luiz">Luiz</option>
+                    <option value="Marco Faria">Marco Faria</option>
+                    <option value="Marcos DJ">Marcos DJ</option>
+                    <option value="Rafael Carvalho">Rafael Carvalho</option>
+                    <option value="Thiago Dantas">Thiago Dantas</option>
+                    <option value="Thiago Tortolano">Thiago Tortolano</option>
+                    <option value="Wagner">Wagner</option>
+                    <option value="Yuri">Yuri</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="carro" class="required-field">CARRO:</label>
+                <select id="carro" name="carro" required>
+                    <option value="">Selecione o carro</option>
+                    <option value="BYD 1">BYD 1</option>
+                    <option value="BYD 2">BYD 2</option>
+                    <option value="Carens">Carens</option>
+                    <option value="Particular">Particular</option>
+                    <option value="Sandero">Sandero</option>
+                    <option value="Saveiro">Saveiro</option>
+                    <option value="Spin">Spin</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="placa">PLACA:</label>
+                <select id="placa" name="placa">
+                    <option value="">Selecione a placa</option>
+                    <option value="EMR4C04">EMR4C04 (Sandero)</option>
+                    <option value="FKE9857">FKE9857 (Spin)</option>
+                    <option value="TLB5B63">TLB5B63 (BYD 1)</option>
+                    <option value="TLF1C04">TLF1C04 (BYD 2)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="destino" class="required-field">DESTINO:</label>
+                <select id="destino" name="destino" required>
+                    <option value="">Selecione o destino</option>
+                    <option value="SP-EXPO">SP-EXPO</option>
+                    <option value="TRANSAMERICA">TRANSAMERICA</option>
+                    <option value="Distrito-Anhembi">Distrito Anhembi</option>
+                    <option value="Expo-Center-Norte">Expo-Center Norte</option>
+                    <option value="ASAPH">ASAPH</option>
+                    <option value="Outro">Outro</option>
+                </select>
+                <input type="text" id="outroDestino" name="outroDestino" placeholder="Especifique outro destino" style="display: none; margin-top: 10px;">
+                <input type="text" id="nomeEvento" name="nomeEvento" placeholder="Nome do evento" style="display: none; margin-top: 10px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="km" class="required-field">KM:</label>
+                <input type="number" id="km" name="km" step="0.01" required placeholder="Quilometragem">
+            </div>
+            
+            <div class="form-group">
+                <label for="pneu">PNEU:</label>
+                <select id="pneu" name="pneu">
+                    <option value="">Selecione...</option>
+                    <option value="Cheio">Cheio</option>
+                    <option value="Vazio">Vazio</option>
+                </select>
+            </div>
+            
+            <!-- Campo de Combustível (para carros não elétricos) -->
+            <div class="form-group" id="combustivel-group">
+                <label for="combustivel">COMBUSTÍVEL:</label>
+                <select id="combustivel" name="combustivel">
+                    <option value="">Selecione...</option>
+                    <option value="4/4">4/4 (Tanque cheio)</option>
+                    <option value="3/4">3/4</option>
+                    <option value="2/4">2/4 (Meio tanque)</option>
+                    <option value="1/4">1/4</option>
+                </select>
+            </div>
+            
+            <!-- Campo de Nível da Bateria (para BYDs) -->
+            <div class="form-group hidden" id="bateria-group">
+                <label for="bateria">NÍVEL DA BATERIA:</label>
+                <input type="range" id="bateria" name="bateria" min="1" max="100" value="100" class="battery-meter">
+                <div id="bateria-value" class="battery-value battery-high">100%</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="cartao">CARTÃO:</label>
+                <select id="cartao" name="cartao">
+                    <option value="">Selecione...</option>
+                    <option value="6530">6530</option>
+                    <option value="9405">9405</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="higiene">HIGIENE:</label>
+                <select id="higiene" name="higiene">
+                    <option value="">Selecione...</option>
+                    <option value="Limpo">Limpo</option>
+                    <option value="Mais ou menos">Mais ou menos</option>
+                    <option value="Sujo">Sujo</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="carrinho">CARRINHO:</label>
+                <input type="text" id="carrinho" name="carrinho" placeholder="Qual o carrinho?">
+            </div>
+            
+            <div class="form-group">
+                <label for="data" class="required-field">DATA:</label>
+                <input type="date" id="data" name="data" required disabled>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="submit-btn">SALVAR REGISTRO</button>
+            </div>
+        </form>
+        
+        <!-- Área para exibir os resultados -->
+        <div id="resultadoContainer" style="display: none;">
+            <div id="resultado" class="resultado"></div>
+            <button id="copyBtn" class="copy-btn" onclick="copiarMensagem()">COPIAR MENSAGEM</button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>ASAPH</strong> - Soluções em Tecnologia</p>
+        <p>11 3596-8900 | comercial@asaph.info</p>
+        <p>Para sua marca brilhar</p>
+    </div>
+    
+    <script>
+        // Configura a data atual automaticamente
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const todayFormatted = `${year}-${month}-${day}`;
+            
+            document.getElementById('data').value = todayFormatted;
+            document.getElementById('nome').focus();
+            
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                document.querySelectorAll('select').forEach(select => {
+                    select.style.fontSize = '16px';
+                });
+            }
+            
+            // Mostrar campo de texto quando selecionar "Outro" destino e exibir campo do nome do evento
+            document.getElementById('destino').addEventListener('change', function() {
+                const outroDestinoField = document.getElementById('outroDestino');
+                const nomeEventoField = document.getElementById('nomeEvento');
+
+                outroDestinoField.style.display = this.value === 'Outro' ? 'block' : 'none';
+                if (this.value !== 'Outro') outroDestinoField.value = '';
+
+                nomeEventoField.style.display = this.value ? 'block' : 'none';
+                if (!this.value) nomeEventoField.value = '';
+            });
+            
+            // Atualizar placa automaticamente quando selecionar o carro
+            document.getElementById('carro').addEventListener('change', function() {
+                const placaSelect = document.getElementById('placa');
+                const carroSelecionado = this.value;
+                
+                // Mapeamento de carros para placas
+                const mapeamentoPlacas = {
+                    'Sandero': 'EMR4C04',
+                    'Spin': 'FKE9857',
+                    'BYD 1': 'TLB5B63',
+                    'BYD 2': 'TLF1C04'
+                };
+                
+                if (mapeamentoPlacas[carroSelecionado]) {
+                    for (let i = 0; i < placaSelect.options.length; i++) {
+                        if (placaSelect.options[i].value === mapeamentoPlacas[carroSelecionado]) {
+                            placaSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    placaSelect.selectedIndex = 0; // Volta para "Selecione a placa"
+                }
+                
+                // Mostrar/ocultar campos de combustível/bateria conforme o carro selecionado
+                const isBYD = carroSelecionado === 'BYD 1' || carroSelecionado === 'BYD 2';
+                document.getElementById('combustivel-group').classList.toggle('hidden', isBYD);
+                document.getElementById('bateria-group').classList.toggle('hidden', !isBYD);
+            });
+            
+            // Atualizar o valor e cor do medidor de bateria
+            document.getElementById('bateria').addEventListener('input', function() {
+                const value = this.value;
+                const valueDisplay = document.getElementById('bateria-value');
+                valueDisplay.textContent = `${value}%`;
+                
+                // Atualizar a cor conforme o valor
+                if (value >= 70) {
+                    valueDisplay.className = 'battery-value battery-high';
+                } else if (value >= 50) {
+                    valueDisplay.className = 'battery-value battery-medium';
+                } else {
+                    valueDisplay.className = 'battery-value battery-low';
+                }
+            });
+        });
+        
+        // Função para salvar o registro e exibir os dados
+        function salvarRegistro(event) {
+            event.preventDefault();
+            
+            // Obter todos os valores do formulário
+            const nome = document.getElementById('nome').value;
+            const carro = document.getElementById('carro').value;
+            const placa = document.getElementById('placa').value || 'Não informado';
+            const destinoSelect = document.getElementById('destino').value;
+            const outroDestino = document.getElementById('outroDestino').value;
+            const destino = destinoSelect === 'Outro' ? outroDestino : destinoSelect;
+            const nomeEvento = document.getElementById('nomeEvento').value || 'Não informado';
+            const km = document.getElementById('km').value;
+            const pneu = document.getElementById('pneu').value || 'Não informado';
+            
+            // Verificar se é BYD para pegar o nível da bateria ou combustível
+            const isBYD = carro === 'BYD 1' || carro === 'BYD 2';
+            let combustivelOuBateria;
+            
+            if (isBYD) {
+                combustivelOuBateria = `Bateria: ${document.getElementById('bateria').value}%`;
+            } else {
+                combustivelOuBateria = `Combustível: ${document.getElementById('combustivel').value || 'Não informado'}`;
+            }
+            
+            const cartao = document.getElementById('cartao').value || 'Não informado';
+            const higiene = document.getElementById('higiene').value || 'Não informado';
+            const carrinho = document.getElementById('carrinho').value || 'Não informado';
+            const data = document.getElementById('data').value;
+            
+            // Formatar a data para exibição (DD/MM/YYYY)
+            const dataParts = data.split('-');
+            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+            
+            // Criar o texto com os resultados
+            const resultadoTexto = `
+NOME: ${nome}
+CARRO: ${carro}
+PLACA: ${placa}
+DESTINO: ${destino}
+NOME DO EVENTO: ${nomeEvento}
+KM: ${km}
+PNEU: ${pneu}
+${combustivelOuBateria}
+CARTÃO: ${cartao}
+HIGIENE: ${higiene}
+CARRINHO: ${carrinho}
+DATA: ${dataFormatada}
+            `;
+            
+            // Exibir os resultados
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.textContent = resultadoTexto;
+            
+            const resultadoContainer = document.getElementById('resultadoContainer');
+            resultadoContainer.style.display = 'block';
+            
+            // Rolagem suave para o resultado
+            resultadoContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Não enviar o formulário (evita recarregar a página)
+            return false;
+        }
+        
+        // Função para copiar a mensagem
+        function copiarMensagem() {
+            const resultadoTexto = document.getElementById('resultado').textContent;
+            
+            // Criar um elemento textarea temporário para copiar o texto
+            const textarea = document.createElement('textarea');
+            textarea.value = resultadoTexto;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                // Copiar o texto para a área de transferência
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'Mensagem copiada!' : 'Não foi possível copiar';
+                alert(msg);
+            } catch (err) {
+                alert('Erro ao copiar mensagem: ' + err);
+            }
+            
+            // Remover o textarea temporário
+            document.body.removeChild(textarea);
+        }
+    </script>
+</body>
+</html>
