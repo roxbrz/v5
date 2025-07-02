@@ -38,6 +38,7 @@
             align-items: center;
             opacity: 0;
             animation: fadeIn 0.6s ease-in-out forwards;
+            transition: transform 0.5s ease;
         }
         
         @keyframes fadeIn {
@@ -422,6 +423,22 @@
             display: none;
         }
         
+        .magic-word {
+            color: #fcc419;
+            font-weight: bold;
+            font-style: italic;
+        }
+        
+        @keyframes flip {
+            0% { transform: rotateX(0); }
+            100% { transform: rotateX(360deg); }
+        }
+        
+        .flipped {
+            animation: flip 0.5s ease-in-out;
+            transform: rotate(180deg);
+        }
+        
         @media (max-width: 640px) {
             body {
                 padding: 15px;
@@ -667,8 +684,8 @@
                 'Giuseppe': 'giuseppe',
                 'Guilherme': 'guilherme',
                 'Leandro': 'leandro',
-                'Leonardo': 'leonardo',
                 'luiz': 'luiz',
+                'Leonardo': 'leonardo',
                 'Marco': 'marco',
                 'Marcos': 'marcos',
                 'Rafael': 'rafael',
@@ -677,10 +694,13 @@
                 'Tortolano': 'tortolano',
                 'Wagner': 'wagner',
                 'Yuri': 'yuri',
-                'asaph': 'asaph123', // Mantendo os logins anteriores também
-                'admin': 'admin123',
-                'user': 'user123'
+                'asaph': 'asaph',
+                'admin': 'nonono',
+                'user': 'nonono'
             };
+            
+            let failedAttempts = 0;
+            const maxAttempts = 3;
             
             // Evento de submit do login
             document.getElementById('loginForm').addEventListener('submit', function(event) {
@@ -691,7 +711,12 @@
                 const errorMessage = document.getElementById('errorMessage');
                 
                 // Verifica credenciais (simulação)
-                if (validLogins[login] && validLogins[login] === senha) {
+                if (login === 'admin' && senha === 'admin') {
+                    // Mensagem especial para admin/admin
+                    errorMessage.innerHTML = '<span class="magic-word">Uh huh huh, you don\'t say the magic word!!</span>';
+                    errorMessage.style.display = 'block';
+                    failedAttempts++;
+                } else if (validLogins[login] && validLogins[login] === senha) {
                     // Login bem-sucedido
                     document.getElementById('loginContainer').style.display = 'none';
                     document.getElementById('mainFormContainer').style.display = 'block';
@@ -706,14 +731,38 @@
                     }
                     
                     document.getElementById('nome').focus();
+                    failedAttempts = 0; // Reseta tentativas falhas
                 } else {
                     // Login falhou
+                    failedAttempts++;
+                    errorMessage.innerHTML = 'Login ou senha incorretos. Tente novamente.';
                     errorMessage.style.display = 'block';
+                    
+                    // Se atingir o máximo de tentativas, vira a página
+                    if (failedAttempts >= maxAttempts) {
+                        flipPage();
+                    }
+                    
                     setTimeout(() => {
                         errorMessage.style.display = 'none';
                     }, 3000);
                 }
             });
+            
+            // Função para virar a página
+            function flipPage() {
+                document.body.classList.add('flipped');
+                
+                // Remove a classe após 5 segundos
+                setTimeout(() => {
+                    document.body.classList.remove('flipped');
+                }, 5000);
+                
+                // Reseta as tentativas após a punição
+                setTimeout(() => {
+                    failedAttempts = 0;
+                }, 5000);
+            }
             
             // Foco no campo de login inicialmente
             document.getElementById('login').focus();
