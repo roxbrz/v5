@@ -658,13 +658,28 @@
             const todayFormatted = today.toISOString().split('T')[0];
             document.getElementById('data').value = todayFormatted;
             
-            // Dados de login válidos (em um sistema real, isso seria verificado no servidor)
+            // Dados de login válidos
             const validLogins = {
-                'asaph': 'asaph',
-                'admin': 'nonono',
+                'Andre': 'andre',
+                'Cassio': 'cassio',
+                'Danilo': 'danilo',
+                'Fernando': 'fernando',
+                'Giuseppe': 'giuseppe',
+                'Guilherme': 'guilherme',
+                'Leandro': 'leandro',
+                'Leonardo': 'leonardo',
                 'luiz': 'luiz',
-                'teste': 'teste',
-                
+                'Marco': 'marco',
+                'Marcos': 'marcos',
+                'Rafael': 'rafael',
+                'Roberto': 'roberto',
+                'Dantas': 'dantas',
+                'Tortolano': 'tortolano',
+                'Wagner': 'wagner',
+                'Yuri': 'yuri',
+                'asaph': 'asaph123', // Mantendo os logins anteriores também
+                'admin': 'admin123',
+                'user': 'user123'
             };
             
             // Evento de submit do login
@@ -680,6 +695,16 @@
                     // Login bem-sucedido
                     document.getElementById('loginContainer').style.display = 'none';
                     document.getElementById('mainFormContainer').style.display = 'block';
+                    
+                    // Preenche automaticamente o nome no formulário se corresponder
+                    const nomeSelect = document.getElementById('nome');
+                    for (let i = 0; i < nomeSelect.options.length; i++) {
+                        if (nomeSelect.options[i].text.toLowerCase().includes(login.toLowerCase())) {
+                            nomeSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    
                     document.getElementById('nome').focus();
                 } else {
                     // Login falhou
