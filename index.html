@@ -18,6 +18,7 @@
             --asaph-border: #2e2e2e;
             --asaph-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             --asaph-transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+            --asaph-valid: #2ecc71;
         }
         
         * {
@@ -36,14 +37,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            opacity: 0;
             animation: fadeIn 0.6s ease-in-out forwards;
             transition: transform 0.5s ease;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: translateY(10px); }
+            to { transform: translateY(0); }
         }
         
         .header {
@@ -100,6 +100,21 @@
         .form-group {
             margin-bottom: 24px;
             position: relative;
+            display: none;
+        }
+        
+        .form-group.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        .form-group.completed {
+            display: block;
+        }
+        
+        .form-group.completed input:valid,
+        .form-group.completed select:valid {
+            border-color: var(--asaph-valid);
         }
         
         label {
@@ -238,6 +253,40 @@
             width: 16px;
             height: 16px;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+        }
+        
+        .restart-btn {
+            width: 100%;
+            background-color: var(--asaph-border);
+            color: var(--asaph-light);
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: var(--asaph-transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .restart-btn:hover {
+            background-color: #3a3a3a;
+            transform: translateY(-1px);
+        }
+        
+        .restart-btn::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8'%3E%3C/path%3E%3Cpath d='M3 3v5h5'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
         }
         
@@ -439,6 +488,40 @@
             transform: rotate(180deg);
         }
         
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            background-color: var(--asaph-border);
+            color: var(--asaph-light);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--asaph-transition);
+        }
+        
+        .nav-btn:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .progress-indicator {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--asaph-gray);
+            font-size: 0.9rem;
+        }
+        
         @media (max-width: 640px) {
             body {
                 padding: 15px;
@@ -473,12 +556,12 @@
     <!-- Container de Login -->
     <div id="loginContainer" class="login-container">
         <form id="loginForm">
-            <div class="form-group">
+            <div class="form-group active">
                 <label for="login" class="required-field">LOGIN</label>
                 <input type="text" id="login" name="login" required placeholder="Seu usuário">
             </div>
             
-            <div class="form-group">
+            <div class="form-group active">
                 <label for="senha" class="required-field">SENHA</label>
                 <input type="password" id="senha" name="senha" required placeholder="Sua senha">
             </div>
@@ -487,7 +570,7 @@
                 Login ou senha incorretos. Tente novamente.
             </div>
             
-            <div class="form-group">
+            <div class="form-group active">
                 <button type="submit" class="submit-btn">ENTRAR</button>
             </div>
         </form>
@@ -495,8 +578,11 @@
     
     <!-- Formulário principal (inicialmente oculto) -->
     <div id="mainFormContainer" class="form-container" style="display: none;">
+        <div id="progressIndicator" class="progress-indicator">Passo 1 de 10</div>
+        
         <form id="formViagem">
-            <div class="form-group">
+            <!-- Nome -->
+            <div class="form-group active" id="nome-group">
                 <label for="nome" class="required-field">NOME<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Selecione seu nome na lista</span></span></label>
                 <select id="nome" name="nome" required>
                     <option value="">Selecione seu nome</option>
@@ -520,7 +606,8 @@
                 </select>
             </div>
             
-            <div class="form-group">
+            <!-- Carro -->
+            <div class="form-group" id="carro-group">
                 <label for="carro" class="required-field">CARRO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Selecione o veículo utilizado</span></span></label>
                 <select id="carro" name="carro" required>
                     <option value="">Selecione o carro</option>
@@ -537,6 +624,7 @@
                 </select>
             </div>
             
+            <!-- Modelo (condicional) -->
             <div class="form-group hidden" id="modelo-group">
                 <label for="modelo">MODELO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Modelo do caminhão</span></span></label>
                 <select id="modelo" name="modelo">
@@ -550,28 +638,11 @@
                 </select>
             </div>
             
-            <div class="form-group">
-                <label for="placa">PLACA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Placa do veículo (preenchimento automático)</span></span></label>
-                <select id="placa" name="placa">
-                    <option value="">Selecione a placa</option>
-                    <option value="EMR4C04">EMR4C04 (Sandero)</option>
-                    <option value="FKE9857">FKE9857 (Spin)</option>
-                    <option value="TLB5B63">TLB5B63 (BYD 63)</option>
-                    <option value="TLF1C04">TLF1C04 (BYD 04)</option>
-                    <option value="RNM2A41">RNM2A41 (Doblo-41)</option>
-                    <option value="RNZ9E98">RNZ9E98 (Doblo-98)</option>
-                    <option value="GBK4A85">GBK4A85 (Saveiro)</option>
-                    <option value="ENJ2154">ENJ2154 (Carens)</option>
-                    <option value="TJY1I19">TJY1I19 (IVECO - DELIVERY-19)</option>
-                    <option value="TJQ5E57">TJQ5E57 (IVECO - DELIVERY-57)</option>
-                    <option value="TJV1H83">TJV1H83 (IVECO - DELIVERY-83)</option>
-                    <option value="TJV1C35">TJV1C35 (IVECO - DELIVERY-35)</option>
-                    <option value="GIT4J12">GIT4J12 (VUC-12)</option>
-                    <option value="DYJ5A69">DYJ5A69 (VUC-69)</option>
-                </select>
-            </div>
+            <!-- Placa (oculto, preenchido automaticamente) -->
+            <input type="hidden" id="placa" name="placa">
             
-            <div class="form-group">
+            <!-- Destino -->
+            <div class="form-group" id="destino-group">
                 <label for="destino" class="required-field">DESTINO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Local de destino da viagem</span></span></label>
                 <select id="destino" name="destino" required>
                     <option value="">Selecione o destino</option>
@@ -588,12 +659,14 @@
                 <input type="text" id="nomeEvento" name="nomeEvento" placeholder="Nome do evento" style="display: none; margin-top: 10px;">
             </div>
             
-            <div class="form-group">
+            <!-- KM -->
+            <div class="form-group" id="km-group">
                 <label for="km" class="required-field">KM<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Quilometragem do veículo</span></span></label>
                 <input type="number" id="km" name="km" step="0.01" required placeholder="Ex: 123.45">
             </div>
             
-            <div class="form-group">
+            <!-- Pneu -->
+            <div class="form-group" id="pneu-group">
                 <label for="pneu" class="required-field">PNEU<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Estado dos pneus do veículo</span></span></label>
                 <select id="pneu" name="pneu" required>
                     <option value="">Selecione...</option>
@@ -604,6 +677,7 @@
                 <input type="text" id="obsPneu" name="obsPneu" placeholder="Descreva a observação sobre o pneu" style="display: none; margin-top: 10px;">
             </div>
             
+            <!-- Combustível/Bateria -->
             <div class="form-group hidden" id="combustivel-group">
                 <label for="combustivel" class="required-field">COMBUSTÍVEL<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Nível do tanque de combustível</span></span></label>
                 <select id="combustivel" name="combustivel">
@@ -615,13 +689,14 @@
                 </select>
             </div>
             
-            <div class="form-group" id="bateria-group">
+            <div class="form-group hidden" id="bateria-group">
                 <label for="bateria" class="required-field">NÍVEL DA BATERIA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Nível de carga da bateria (veículos elétricos)</span></span></label>
                 <input type="range" id="bateria" name="bateria" min="1" max="100" value="100" class="battery-meter" required>
                 <div id="bateria-value" class="battery-value battery-high">100%</div>
             </div>
             
-            <div class="form-group">
+            <!-- Cartão -->
+            <div class="form-group" id="cartao-group">
                 <label for="cartao" class="required-field">CARTÃO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Cartão utilizado para pedágios/combustível</span></span></label>
                 <select id="cartao" name="cartao" required>
                     <option value="">Selecione...</option>
@@ -631,7 +706,8 @@
                 </select>
             </div>
             
-            <div class="form-group">
+            <!-- Higiene -->
+            <div class="form-group" id="higiene-group">
                 <label for="higiene" class="required-field">HIGIENE<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Estado de limpeza do veículo</span></span></label>
                 <select id="higiene" name="higiene" required>
                     <option value="">Selecione...</option>
@@ -641,24 +717,26 @@
                 </select>
             </div>
             
-            <div class="form-group">
+            <!-- Carrinho -->
+            <div class="form-group" id="carrinho-group">
                 <label for="carrinho">CARRINHO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Carrinho de transporte utilizado</span></span></label>
                 <input type="text" id="carrinho" name="carrinho" placeholder="Ex: Carrinho preto grande">
             </div>
             
-            <div class="form-group">
-                <label for="data" class="required-field">DATA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Data da viagem (preenchimento automático)</span></span></label>
-                <input type="date" id="data" name="data" required disabled>
-            </div>
+            <!-- Data (campo oculto) -->
+            <input type="hidden" id="data" name="data">
             
-            <div class="form-group">
-                <button type="submit" class="submit-btn">SALVAR REGISTRO</button>
+            <div class="nav-buttons">
+                <button type="button" id="prevBtn" class="nav-btn" disabled>ANTERIOR</button>
+                <button type="button" id="nextBtn" class="nav-btn">PRÓXIMO</button>
+                <button type="submit" id="submitBtn" class="submit-btn" style="display: none;">SALVAR REGISTRO</button>
             </div>
         </form>
         
         <div id="resultadoContainer" style="display: none;">
             <div id="resultado" class="resultado"></div>
             <button id="copyBtn" class="copy-btn">COPIAR MENSAGEM</button>
+            <button id="restartBtn" class="restart-btn">VOLTAR PARA O INÍCIO</button>
         </div>
     </div>
     
@@ -675,48 +753,82 @@
             const todayFormatted = today.toISOString().split('T')[0];
             document.getElementById('data').value = todayFormatted;
             
-            // Dados de login válidos
+            // Dados de login válidos (todos em minúsculas para evitar case-sensitive)
             const validLogins = {
                 'andre': 'andre',
-                'cassio': 'cassio',
+                'cássio': 'cássio',
                 'danilo': 'danilo',
                 'fernando': 'fernando',
                 'giuseppe': 'giuseppe',
-                'guilherme': 'guilherme',
+                'guilherme trindade': 'guilherme',
                 'leandro': 'leandro',
-                'luiz': 'luiz',
-                'leonardo': 'leonardo',
-                'marco': 'marco',
-                'marcos': 'marcos',
-                'rafael': 'rafael',
+                'luiz felipe': 'luiz',
+                'leonardo langella': 'leonardo',
+                'marco faria': 'marco',
+                'marcos dj': 'marcos',
+                'rafael carvalho': 'rafael',
                 'roberto': 'roberto',
-                'dantas': 'dantas',
-                'tortolano': 'tortolano',
+                'thiago dantas': 'dantas',
+                'thiago tortolano': 'tortolano',
                 'wagner': 'wagner',
                 'yuri': 'yuri',
                 'asaph': 'asaph',
-                'admin': 'nonono',
-                'user': 'nonono'
+                'admin': 'admin',
+                'user': 'user'
+            };
+            
+            // Mapeamento de carros para placas
+            const carroPlacaMap = {
+                'BYD 63': 'TLB5B63',
+                'BYD 04': 'TLF1C04',
+                'Carens': 'ENJ2154',
+                'Doblo-41': 'RNM2A41',
+                'Doblo-98': 'RNZ9E98',
+                'Caminhão': '',
+                'Particular': '',
+                'Sandero': 'EMR4C04',
+                'Saveiro': 'GBK4A85',
+                'Spin': 'FKE9857'
+            };
+            
+            // Mapeamento de modelos para placas
+            const modeloPlacaMap = {
+                'IVECO - DELIVERY-19': 'TJY1I19',
+                'IVECO - DELIVERY-57': 'TJQ5E57',
+                'IVECO - DELIVERY-83': 'TJV1H83',
+                'IVECO - DELIVERY-35': 'TJV1C35',
+                'VUC-12': 'GIT4J12',
+                'VUC-69': 'DYJ5A69'
             };
             
             let failedAttempts = 0;
             const maxAttempts = 3;
+            let currentStep = 0;
+            const formGroups = [
+                'nome-group', 'carro-group', 'modelo-group', 
+                'destino-group', 'km-group', 'pneu-group', 'combustivel-group', 
+                'bateria-group', 'cartao-group', 'higiene-group', 'carrinho-group'
+            ];
             
             // Evento de submit do login
             document.getElementById('loginForm').addEventListener('submit', function(event) {
                 event.preventDefault();
                 
-                const login = document.getElementById('login').value;
-                const senha = document.getElementById('senha').value;
+                const loginInput = document.getElementById('login');
+                const senhaInput = document.getElementById('senha');
                 const errorMessage = document.getElementById('errorMessage');
                 
-                // Verifica credenciais (simulação)
+                // Remove espaços em branco e converte para minúsculas
+                const login = loginInput.value.trim().toLowerCase();
+                const senha = senhaInput.value.trim();
+                
+                // Verifica credenciais
                 if (login === 'admin' && senha === 'admin') {
                     // Mensagem especial para admin/admin
                     errorMessage.innerHTML = '<span class="magic-word">Uh huh huh, you don\'t say the magic word!!</span>';
                     errorMessage.style.display = 'block';
                     failedAttempts++;
-                } else if (validLogins[login] && validLogins[login] === senha) {
+                } else if (validLogins[login] && validLogins[login] === senha.toLowerCase()) {
                     // Login bem-sucedido
                     document.getElementById('loginContainer').style.display = 'none';
                     document.getElementById('mainFormContainer').style.display = 'block';
@@ -724,7 +836,8 @@
                     // Preenche automaticamente o nome no formulário se corresponder
                     const nomeSelect = document.getElementById('nome');
                     for (let i = 0; i < nomeSelect.options.length; i++) {
-                        if (nomeSelect.options[i].text.toLowerCase().includes(login.toLowerCase())) {
+                        const optionText = nomeSelect.options[i].text.toLowerCase();
+                        if (optionText.includes(login.toLowerCase())) {
                             nomeSelect.selectedIndex = i;
                             break;
                         }
@@ -732,6 +845,9 @@
                     
                     document.getElementById('nome').focus();
                     failedAttempts = 0; // Reseta tentativas falhas
+                    
+                    // Inicializa o formulário passo a passo
+                    initStepForm();
                 } else {
                     // Login falhou
                     failedAttempts++;
@@ -783,58 +899,42 @@
                 if (this.value !== 'Outro') outroDestinoField.value = '';
             });
             
+            // Evento de mudança no campo Carro
             document.getElementById('carro').addEventListener('change', function() {
                 const carroSelecionado = this.value;
-                const placaSelect = document.getElementById('placa');
+                const placaInput = document.getElementById('placa');
                 
-                // Mapeamento de carros para placas
-                const mapeamentoPlacas = {
-                    'Sandero': 'EMR4C04',
-                    'Spin': 'FKE9857',
-                    'BYD 63': 'TLB5B63',
-                    'BYD 04': 'TLF1C04',
-                    'Doblo-41': 'RNM2A41',
-                    'Doblo-98': 'RNZ9E98',
-                    'Saveiro': 'GBK4A85',
-                    'Carens': 'ENJ2154',
-                    'IVECO - DELIVERY-19': 'TJY1I19',
-                    'IVECO - DELIVERY-57': 'TJQ5E57',
-                    'IVECO - DELIVERY-83': 'TJV1H83',
-                    'IVECO - DELIVERY-35': 'TJV1C35',
-                    'VUC-12': 'GIT4J12',
-                    'VUC-69': 'DYJ5A69'
-                };
-                
-                if (mapeamentoPlacas[carroSelecionado]) {
-                    placaSelect.value = mapeamentoPlacas[carroSelecionado];
+                // Preenche a placa automaticamente
+                if (carroPlacaMap[carroSelecionado]) {
+                    placaInput.value = carroPlacaMap[carroSelecionado];
                 } else {
-                    placaSelect.selectedIndex = 0;
+                    placaInput.value = '';
                 }
                 
                 // Mostrar/ocultar campos específicos
-                const isBYD = carroSelecionado.includes('BYD');
+                const isBYD = carroSelecionado === 'BYD 63' || carroSelecionado === 'BYD 04';
                 document.getElementById('combustivel-group').classList.toggle('hidden', isBYD);
                 document.getElementById('bateria-group').classList.toggle('hidden', !isBYD);
                 
                 const isCaminhao = carroSelecionado === 'Caminhão';
                 document.getElementById('modelo-group').classList.toggle('hidden', !isCaminhao);
                 if (!isCaminhao) document.getElementById('modelo').selectedIndex = 0;
+                
+                // Se não for caminhão, pula para o destino
+                if (!isCaminhao && currentStep === 1) {
+                    // Pula o passo do modelo (índice 2)
+                    currentStep = 3;
+                    showStep(currentStep);
+                }
             });
             
+            // Evento de mudança no campo Modelo
             document.getElementById('modelo').addEventListener('change', function() {
                 const modeloSelecionado = this.value;
-                const placaSelect = document.getElementById('placa');
-                const mapeamentoModeloPlaca = {
-                    'IVECO - DELIVERY-19': 'TJY1I19',
-                    'IVECO - DELIVERY-57': 'TJQ5E57',
-                    'IVECO - DELIVERY-83': 'TJV1H83',
-                    'IVECO - DELIVERY-35': 'TJV1C35',
-                    'VUC-12': 'GIT4J12',
-                    'VUC-69': 'DYJ5A69'
-                };
+                const placaInput = document.getElementById('placa');
                 
-                if (mapeamentoModeloPlaca[modeloSelecionado]) {
-                    placaSelect.value = mapeamentoModeloPlaca[modeloSelecionado];
+                if (modeloPlacaMap[modeloSelecionado]) {
+                    placaInput.value = modeloPlacaMap[modeloSelecionado];
                 }
             });
             
@@ -857,6 +957,11 @@
                 obsPneuField.style.display = this.value === 'Atenção necessária' ? 'block' : 'none';
             });
             
+            // Evento de mudança no campo Carrinho
+            document.getElementById('carrinho').addEventListener('input', function() {
+                updateSubmitButtonVisibility();
+            });
+            
             // Evento de submit
             document.getElementById('formViagem').addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -871,6 +976,162 @@
             });
             
             document.getElementById('copyBtn').addEventListener('click', copiarMensagem);
+            
+            // Evento do botão Voltar para o Início
+            document.getElementById('restartBtn').addEventListener('click', function() {
+                resetForm();
+            });
+            
+            // Função para atualizar a visibilidade do botão de submit
+            function updateSubmitButtonVisibility() {
+                const isLastStep = currentStep === formGroups.length - 1;
+                const carrinhoValue = document.getElementById('carrinho').value.trim();
+                
+                if (isLastStep) {
+                    document.getElementById('nextBtn').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'block';
+                } else {
+                    document.getElementById('nextBtn').style.display = 'block';
+                    document.getElementById('submitBtn').style.display = 'none';
+                }
+            }
+            
+            // Função para resetar o formulário
+            function resetForm() {
+                // Limpa todos os campos
+                document.getElementById('formViagem').reset();
+                
+                // Reseta a data para hoje
+                document.getElementById('data').value = todayFormatted;
+                
+                // Esconde campos condicionais
+                document.getElementById('modelo-group').classList.add('hidden');
+                document.getElementById('outroDestino').style.display = 'none';
+                document.getElementById('nomeEvento').style.display = 'none';
+                document.getElementById('obsPneu').style.display = 'none';
+                
+                // Reseta o indicador de bateria
+                document.getElementById('bateria').value = 100;
+                document.getElementById('bateria-value').textContent = '100%';
+                document.getElementById('bateria-value').className = 'battery-value battery-high';
+                
+                // Esconde o botão de submit
+                document.getElementById('submitBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'block';
+                
+                // Esconde o resultado
+                document.getElementById('resultadoContainer').style.display = 'none';
+                
+                // Volta para o primeiro passo
+                currentStep = 0;
+                showStep(currentStep);
+                
+                // Rola para o topo do formulário
+                document.getElementById('nome-group').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Função para avançar para o próximo passo
+            function nextStep() {
+                if (validateStep(currentStep)) {
+                    // Marca o passo como completado
+                    document.getElementById(formGroups[currentStep]).classList.add('completed');
+                    
+                    // Verifica se precisa pular algum passo
+                    if (currentStep === 5) { // Passo do pneu
+                        const carroSelecionado = document.getElementById('carro').value;
+                        const isBYD = carroSelecionado === 'BYD 63' || carroSelecionado === 'BYD 04';
+                        
+                        if (!isBYD) {
+                            // Se não for BYD, pula o passo da bateria (índice 7) e vai direto para o cartão (índice 8)
+                            currentStep = 8;
+                        } else {
+                            currentStep++;
+                        }
+                    } else {
+                        currentStep++;
+                    }
+                    
+                    showStep(currentStep);
+                }
+            }
+            
+            // Lógica do formulário passo a passo
+            function initStepForm() {
+                // Mostra o primeiro passo
+                showStep(currentStep);
+                
+                // Evento do botão "Próximo"
+                document.getElementById('nextBtn').addEventListener('click', nextStep);
+                
+                // Evento do botão "Anterior"
+                document.getElementById('prevBtn').addEventListener('click', function() {
+                    if (currentStep > 0) {
+                        currentStep--;
+                        showStep(currentStep);
+                    }
+                });
+            }
+            
+            // Atualiza o indicador de progresso
+            function updateProgress() {
+                document.getElementById('progressIndicator').textContent = 
+                    `Passo ${currentStep + 1} de ${formGroups.length}`;
+            }
+            
+            // Mostra o passo atual
+            function showStep(step) {
+                // Oculta todos os grupos
+                formGroups.forEach(group => {
+                    const element = document.getElementById(group);
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+                
+                // Mostra o grupo atual
+                const currentGroup = document.getElementById(formGroups[step]);
+                if (currentGroup) {
+                    currentGroup.style.display = 'block';
+                    currentGroup.classList.add('active');
+                    
+                    // Rola para o campo atual
+                    currentGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Atualiza botões de navegação
+                document.getElementById('prevBtn').disabled = step === 0;
+                
+                // Atualiza a visibilidade dos botões de navegação
+                updateSubmitButtonVisibility();
+                
+                updateProgress();
+            }
+            
+            // Valida o passo atual
+            function validateStep(step) {
+                const groupId = formGroups[step];
+                const group = document.getElementById(groupId);
+                
+                if (!group) return true;
+                
+                const inputs = group.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    if (!input.value) {
+                        isValid = false;
+                        input.style.borderColor = '#ff6b6b';
+                        
+                        setTimeout(() => {
+                            input.style.borderColor = '';
+                        }, 2000);
+                    } else {
+                        input.style.borderColor = 'var(--asaph-valid)';
+                    }
+                });
+                
+                return isValid;
+            }
         });
 
         function salvarRegistro() {
@@ -886,7 +1147,7 @@
             const pneu = form.pneu.value === 'Atenção necessária' ? 
                          `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
             
-            const isBYD = carro.includes('BYD');
+            const isBYD = carro === 'BYD 63' || carro === 'BYD 04';
             const combustivelOuBateria = isBYD ? 
                 `Bateria: ${form.bateria.value}%` : 
                 `Combustível: ${form.combustivel.value || 'Não informado'}`;
