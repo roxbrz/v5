@@ -853,6 +853,33 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
             
             document.body.removeChild(textarea);
         }
+
+        function fetch('https://script.google.com/macros/s/AKfycbxOdFmyvx6WU4mko89u_YboJoKXV6NKJ-YaQpOCzkRyTAsSme1E5bAAUthaWpkrzdQY/exec', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome: "André",
+                carro: "Spin",
+                placa: "FKE9857",
+                rodizio: "Quarta-feira",
+                destino: "ASAPH",
+                nomeEvento: "Exemplo",
+                km: "123",
+                pneu: "Cheio",
+                combustivelOuBateria: "Combustível: 3/4",
+                cartao: "6530",
+                higiene: "Limpo",
+                carrinho: "Carrinho grande",
+                data: "14/07/2025"
+            })
+            })
+            .then(res => res.json())
+            .then(dado => console.log('Salvo:', dado))
+            .catch(err => console.error('Erro:', err));
+
+
     </script>
 </body>
 </html>
