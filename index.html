@@ -779,37 +779,34 @@
         });
 
         function salvarRegistro() {
-            const form = document.getElementById('formViagem');
-            
-            // Obter valores
-            const nome = form.nome.value;
-            const carro = form.carro.value;
-            const placa = form.placa.value || 'Não informado';
-            const rodizio = form.rodizio.value || 'Não se aplica';
-            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-            const nomeEvento = form.nomeEvento.value || 'Não informado';
-            const km = form.km.value;
-            const pneu = form.pneu.value === 'Atenção necessária' ? 
-                         `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
-            
-            const isBYD = carro.includes('BYD');
-            const combustivelOuBateria = isBYD ? 
-                `Bateria: ${form.bateria.value}%` : 
-                `Combustível: ${form.combustivel.value || 'Não informado'}`;
-            
-            const cartao = form.cartao.value || 'Não informado';
-            const higiene = form.higiene.value || 'Não informado';
-            const carrinho = form.carrinho.value || 'Não informado';
-            
-            // Formatar data
-            const dataParts = form.data.value.split('-');
-            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
-            
-            // Modelo do caminhão se aplicável
-            const modelo = carro === 'Caminhão' ? `MODELO: ${form.modelo.value || 'Não informado'}\n` : '';
-            
-            // Montar resultado
-            const resultadoTexto = `*NOME:* ${nome}
+    const form = document.getElementById('formViagem');
+
+    const nome = form.nome.value;
+    const carro = form.carro.value;
+    const placa = form.placa.value || 'Não informado';
+    const rodizio = form.rodizio.value || 'Não se aplica';
+    const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
+    const nomeEvento = form.nomeEvento.value || 'Não informado';
+    const km = form.km.value;
+    const pneu = form.pneu.value === 'Atenção necessária' ?
+                 `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
+
+    const isBYD = carro.includes('BYD');
+    const combustivelOuBateria = isBYD ?
+        `Bateria: ${form.bateria.value}%` :
+        `Combustível: ${form.combustivel.value || 'Não informado'}`;
+
+    const cartao = form.cartao.value || 'Não informado';
+    const higiene = form.higiene.value || 'Não informado';
+    const carrinho = form.carrinho.value || 'Não informado';
+
+    const dataParts = form.data.value.split('-');
+    const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+
+    const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : null;
+
+    // Montar texto de visualização
+    const resultadoTexto = `*NOME:* ${nome}
 *CARRO:* ${carro}
 ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *RODÍZIO:* ${rodizio}
@@ -822,63 +819,42 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *HIGIENE:* ${higiene}
 *CARRINHO:* ${carrinho}
 *DATA:* ${dataFormatada}`;
-            
-            // Exibir resultado
-            document.getElementById('resultado').textContent = resultadoTexto;
-            const resultadoContainer = document.getElementById('resultadoContainer');
-            resultadoContainer.style.display = 'block';
-            resultadoContainer.scrollIntoView({ behavior: 'smooth' });
-        }
 
-        function copiarMensagem() {
-            const resultadoTexto = document.getElementById('resultado').textContent;
-            const textarea = document.createElement('textarea');
-            textarea.value = resultadoTexto;
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                document.execCommand('copy');
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.textContent = '✓ COPIADO!';
-                copyBtn.style.backgroundColor = '#087849';
-                
-                setTimeout(() => {
-                    copyBtn.textContent = 'COPIAR MENSAGEM';
-                    copyBtn.style.backgroundColor = '';
-                }, 2000);
-            } catch (err) {
-                console.error('Erro ao copiar:', err);
-            }
-            
-            document.body.removeChild(textarea);
-        }
+    document.getElementById('resultado').textContent = resultadoTexto;
+    const resultadoContainer = document.getElementById('resultadoContainer');
+    resultadoContainer.style.display = 'block';
+    resultadoContainer.scrollIntoView({ behavior: 'smooth' });
 
-        function fetch('https://script.google.com/macros/s/AKfycbxOdFmyvx6WU4mko89u_YboJoKXV6NKJ-YaQpOCzkRyTAsSme1E5bAAUthaWpkrzdQY/exec', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nome: "André",
-                carro: "Spin",
-                placa: "FKE9857",
-                rodizio: "Quarta-feira",
-                destino: "ASAPH",
-                nomeEvento: "Exemplo",
-                km: "123",
-                pneu: "Cheio",
-                combustivelOuBateria: "Combustível: 3/4",
-                cartao: "6530",
-                higiene: "Limpo",
-                carrinho: "Carrinho grande",
-                data: "14/07/2025"
-            })
-            })
-            .then(res => res.json())
-            .then(dado => console.log('Salvo:', dado))
-            .catch(err => console.error('Erro:', err));
-
+    // ENVIO PARA GOOGLE SHEETS VIA FETCH
+    fetch('https://script.google.com/macros/s/AKfycbwzxImoZdtRKCcCt_eeof1c_jlzYy1HO1yMrhC53MiztkFDH09Z84rKpnkSFM72s9zx/exec', { // <- substitua pela sua URL do Apps Script
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            nome,
+            carro,
+            placa,
+            rodizio,
+            destino,
+            nomeEvento,
+            km,
+            pneu,
+            combustivelOuBateria,
+            cartao,
+            higiene,
+            carrinho,
+            data: dataFormatada
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('Registro salvo na planilha:', data);
+    })
+    .catch(err => {
+        console.error('Erro ao salvar na planilha:', err);
+    });
+}
 
     </script>
 </body>
