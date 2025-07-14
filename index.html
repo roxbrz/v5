@@ -853,29 +853,6 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
             
             document.body.removeChild(textarea);
         }
-
-        function fetch('https://script.google.com/macros/s/AKfycbxCsbBtJO0GDjwZmE9pJVwKhpdXqcnSSd2IZdrWCpajYvc2WxTJShT4vM_zmdahtdZC/exec', {
-          method: 'POST',
-          contentType: 'application/json',
-            body: JSON.stringify({
-            nome,
-            carro,
-            placa,
-            rodizio,
-            destino,
-            nomeEvento,
-            km,
-            pneu,
-            combustivelOuBateria,
-            cartao,
-            higiene,
-            carrinho,
-            data: dataFormatada
-        })
-})
-.then(res => res.json())
-.then(data => console.log('Salvo com sucesso!', data))
-.catch(err => console.error('Erro ao salvar:', err));
     </script>
 </body>
 </html>
