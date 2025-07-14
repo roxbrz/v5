@@ -96,6 +96,41 @@
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         }
         
+        .trip-type-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+        
+        .trip-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: var(--asaph-transition);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background-color: var(--asaph-border);
+            color: var(--asaph-light);
+            flex: 1;
+            max-width: 180px;
+            text-align: center;
+        }
+        
+        .trip-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .trip-btn.active {
+            background-color: var(--asaph-accent);
+            color: var(--asaph-white);
+            box-shadow: 0 4px 12px rgba(8, 120, 73, 0.3);
+        }
+        
         .form-group {
             margin-bottom: 24px;
             position: relative;
@@ -398,6 +433,15 @@
             select {
                 padding: 12px 14px;
             }
+            
+            .trip-type-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .trip-btn {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -408,6 +452,11 @@
     </div>
     
     <div class="form-container">
+        <div class="trip-type-buttons">
+            <button type="button" id="inicioBtn" class="trip-btn active">INÍCIO</button>
+            <button type="button" id="retornoBtn" class="trip-btn">RETORNO</button>
+        </div>
+        
         <form id="formViagem">
             <div class="form-group">
                 <label for="nome" class="required-field">NOME<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Selecione seu nome na lista</span></span></label>
@@ -535,7 +584,7 @@
                 </select>
             </div>
             
-            <div class="form-group" id="bateria-group">
+            <div class="form-group hidden" id="bateria-group">
                 <label for="bateria" class="required-field">NÍVEL DA BATERIA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Nível de carga da bateria (veículos elétricos)</span></span></label>
                 <div class="battery-container">
                     <div id="batteryFill">100%</div>
@@ -570,7 +619,7 @@
             
             <div class="form-group">
                 <label for="data" class="required-field">DATA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Data da viagem (preenchimento automático)</span></span></label>
-                <input type="date" id="data" name="data" required disabled>
+                <input type="date" id="data" name="data" required>
             </div>
             
             <div class="form-group">
@@ -607,6 +656,68 @@
                 });
             }
             
+            // Elementos dos botões de tipo de viagem
+            const inicioBtn = document.getElementById('inicioBtn');
+            const retornoBtn = document.getElementById('retornoBtn');
+            
+            // Função para alternar entre os botões
+            function toggleTripType(activeBtn) {
+                inicioBtn.classList.toggle('active', activeBtn === 'inicio');
+                retornoBtn.classList.toggle('active', activeBtn === 'retorno');
+                
+                // Se for retorno, carrega os dados salvos
+                if (activeBtn === 'retorno') {
+                    loadSavedData();
+                } else {
+                    // Se for início, limpa os campos que não são salvos
+                    clearNonSavedFields();
+                }
+            }
+            
+            // Event listeners para os botões
+            inicioBtn.addEventListener('click', () => toggleTripType('inicio'));
+            retornoBtn.addEventListener('click', () => toggleTripType('retorno'));
+            
+            // Função para carregar dados salvos
+            function loadSavedData() {
+                const savedData = localStorage.getItem('asaphViagemData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    
+                    // Preenche os campos salvos
+                    if (data.nome) document.getElementById('nome').value = data.nome;
+                    if (data.carro) document.getElementById('carro').value = data.carro;
+                    if (data.placa) document.getElementById('placa').value = data.placa;
+                    if (data.rodizio) document.getElementById('rodizio').value = data.rodizio;
+                    
+                    // Dispara eventos para atualizar campos dependentes
+                    const carroEvent = new Event('change');
+                    document.getElementById('carro').dispatchEvent(carroEvent);
+                    
+                    // Foca no próximo campo a ser preenchido
+                    document.getElementById('destino').focus();
+                }
+            }
+            
+            // Função para limpar campos que não são salvos
+            function clearNonSavedFields() {
+                document.getElementById('destino').value = '';
+                document.getElementById('outroDestino').value = '';
+                document.getElementById('outroDestino').style.display = 'none';
+                document.getElementById('nomeEvento').value = '';
+                document.getElementById('km').value = '';
+                document.getElementById('pneu').value = '';
+                document.getElementById('obsPneu').value = '';
+                document.getElementById('obsPneu').style.display = 'none';
+                document.getElementById('combustivel').value = '';
+                document.getElementById('bateria').value = '100';
+                document.getElementById('batteryFill').style.width = '100%';
+                document.getElementById('batteryFill').textContent = '100%';
+                document.getElementById('cartao').value = '';
+                document.getElementById('higiene').value = '';
+                document.getElementById('carrinho').value = '';
+            }
+            
             // Mostrar/ocultar campos conforme seleções
             document.getElementById('destino').addEventListener('change', function() {
                 const outroDestinoField = document.getElementById('outroDestino');
@@ -640,6 +751,7 @@
                 
                 if (mapeamentoPlacas[carroSelecionado]) {
                     placaSelect.value = mapeamentoPlacas[carroSelecionado];
+                    placaSelect.disabled = false;
                 } else {
                     placaSelect.selectedIndex = 0;
                 }
@@ -671,6 +783,7 @@
                 
                 if (mapeamentoModeloPlaca[modeloSelecionado]) {
                     placaSelect.value = mapeamentoModeloPlaca[modeloSelecionado];
+                    placaSelect.disabled = false;
                 }
                 
                 // Atualiza rodízio quando o modelo muda
@@ -779,34 +892,37 @@
         });
 
         function salvarRegistro() {
-    const form = document.getElementById('formViagem');
-
-    const nome = form.nome.value;
-    const carro = form.carro.value;
-    const placa = form.placa.value || 'Não informado';
-    const rodizio = form.rodizio.value || 'Não se aplica';
-    const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-    const nomeEvento = form.nomeEvento.value || 'Não informado';
-    const km = form.km.value;
-    const pneu = form.pneu.value === 'Atenção necessária' ?
-                 `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
-
-    const isBYD = carro.includes('BYD');
-    const combustivelOuBateria = isBYD ?
-        `Bateria: ${form.bateria.value}%` :
-        `Combustível: ${form.combustivel.value || 'Não informado'}`;
-
-    const cartao = form.cartao.value || 'Não informado';
-    const higiene = form.higiene.value || 'Não informado';
-    const carrinho = form.carrinho.value || 'Não informado';
-
-    const dataParts = form.data.value.split('-');
-    const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
-
-    const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : null;
-
-    // Montar texto de visualização
-    const resultadoTexto = `*NOME:* ${nome}
+            const form = document.getElementById('formViagem');
+            
+            // Obter valores
+            const nome = form.nome.value;
+            const carro = form.carro.value;
+            const placa = form.placa.value || 'Não informado';
+            const rodizio = form.rodizio.value || 'Não se aplica';
+            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
+            const nomeEvento = form.nomeEvento.value || 'Não informado';
+            const km = form.km.value;
+            const pneu = form.pneu.value === 'Atenção necessária' ? 
+                         `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
+            
+            const isBYD = carro.includes('BYD');
+            const combustivelOuBateria = isBYD ? 
+                `Bateria: ${form.bateria.value}%` : 
+                `Combustível: ${form.combustivel.value || 'Não informado'}`;
+            
+            const cartao = form.cartao.value || 'Não informado';
+            const higiene = form.higiene.value || 'Não informado';
+            const carrinho = form.carrinho.value || 'Não informado';
+            
+            // Formatar data
+            const dataParts = form.data.value.split('-');
+            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+            
+            // Modelo do caminhão se aplicável
+            const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : '';
+            
+            // Montar resultado
+            const resultadoTexto = `*NOME:* ${nome}
 *CARRO:* ${carro}
 ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *RODÍZIO:* ${rodizio}
@@ -819,43 +935,47 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *HIGIENE:* ${higiene}
 *CARRINHO:* ${carrinho}
 *DATA:* ${dataFormatada}`;
+            
+            // Exibir resultado
+            document.getElementById('resultado').textContent = resultadoTexto;
+            const resultadoContainer = document.getElementById('resultadoContainer');
+            resultadoContainer.style.display = 'block';
+            resultadoContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Salvar dados no localStorage para uso no retorno
+            const dadosParaSalvar = {
+                nome: nome,
+                carro: carro,
+                placa: placa,
+                rodizio: rodizio
+            };
+            
+            localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
+        }
 
-    document.getElementById('resultado').textContent = resultadoTexto;
-    const resultadoContainer = document.getElementById('resultadoContainer');
-    resultadoContainer.style.display = 'block';
-    resultadoContainer.scrollIntoView({ behavior: 'smooth' });
-
-    // ENVIO PARA GOOGLE SHEETS VIA FETCH
-    fetch('https://script.google.com/macros/s/AKfycbwzxImoZdtRKCcCt_eeof1c_jlzYy1HO1yMrhC53MiztkFDH09Z84rKpnkSFM72s9zx/exec', { // <- substitua pela sua URL do Apps Script
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            nome,
-            carro,
-            placa,
-            rodizio,
-            destino,
-            nomeEvento,
-            km,
-            pneu,
-            combustivelOuBateria,
-            cartao,
-            higiene,
-            carrinho,
-            data: dataFormatada
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log('Registro salvo na planilha:', data);
-    })
-    .catch(err => {
-        console.error('Erro ao salvar na planilha:', err);
-    });
-}
-
+        function copiarMensagem() {
+            const resultadoTexto = document.getElementById('resultado').textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = resultadoTexto;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.textContent = '✓ COPIADO!';
+                copyBtn.style.backgroundColor = '#087849';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = 'COPIAR MENSAGEM';
+                    copyBtn.style.backgroundColor = '';
+                }, 2000);
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+            }
+            
+            document.body.removeChild(textarea);
+        }
     </script>
 </body>
 </html>
