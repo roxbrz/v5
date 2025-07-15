@@ -893,37 +893,60 @@
 
         function salvarRegistro() {
             const form = document.getElementById('formViagem');
-            // Crie o objeto com os dados
+
+                        // Obter valores primeiro
+            const nome = form.nome.value;
+            const carro = form.carro.value;
+            const placa = form.placa.value || 'Não informado';
+            const rodizio = form.rodizio.value || 'Não se aplica';
+            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
+            const nomeEvento = form.nomeEvento.value || 'Não informado';
+            const km = form.km.value;
+            const pneu = form.pneu.value === 'Atenção necessária' ? 
+                        `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
+            const isBYD = carro.includes('BYD');
+            const combustivelOuBateria = isBYD ? 
+                `Bateria: ${form.bateria.value}%` : 
+                `Combustível: ${form.combustivel.value || 'Não informado'}`;
+            const cartao = form.cartao.value || 'Não informado';
+            const higiene = form.higiene.value || 'Não informado';
+            const carrinho = form.carrinho.value || 'Não informado';
+            const dataParts = form.data.value.split('-');
+            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+            const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : '';
+
+            // Agora sim cria o payload corretamente preenchido
             const payload = {
-            nome,
-            carro,
-            placa,
-            rodizio,
-            destino,
-            nomeEvento,
-            km,
-            pneu,
-            combustivelOuBateria,
-            cartao,
-            higiene,
-            carrinho,
-            data: dataFormatada
+                nome,
+                carro,
+                modelo,
+                placa,
+                rodizio,
+                destino,
+                nomeEvento,
+                km,
+                pneu,
+                combustivelOuBateria,
+                cartao,
+                higiene,
+                carrinho,
+                data: dataFormatada
             };
 
             // Enviar para Google Sheets
             fetch('https://script.google.com/macros/s/AKfycbyEUtEI5q9KWeaFe3-QnhX6f1RCAkQ-NCHbvB1aqLO6GdlRFWhc21IDdTFn6BfmADF1/exec', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'application/json' }
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'application/json' }
             })
             .then(response => response.json())
             .then(data => {
-            console.log('Resposta da planilha:', data);
-            alert('Registro salvo na planilha com sucesso!');
+                console.log('Resposta da planilha:', data);
+                alert('Registro salvo na planilha com sucesso!');
             })
             .catch(error => {
-            console.error('Erro ao salvar na planilha:', error);
-            alert('Erro ao salvar na planilha.');
+                console.error('Erro ao salvar na planilha:', error);
+                alert('Erro ao salvar na planilha.');
             });
 
 
