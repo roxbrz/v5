@@ -893,10 +893,11 @@
 
         function salvarRegistro() {
             const form = document.getElementById('formViagem');
-
-                        // Obter valores primeiro
+            
+            // Obter valores primeiro
             const nome = form.nome.value;
             const carro = form.carro.value;
+            const modelo = form.modelo ? form.modelo.value : '';
             const placa = form.placa.value || 'Não informado';
             const rodizio = form.rodizio.value || 'Não se aplica';
             const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
@@ -913,23 +914,22 @@
             const carrinho = form.carrinho.value || 'Não informado';
             const dataParts = form.data.value.split('-');
             const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
-            const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : '';
 
-            // Agora sim cria o payload corretamente preenchido
+            // Criar payload para o Google Sheets
             const payload = {
-                nome,
-                carro,
-                modelo,
-                placa,
-                rodizio,
-                destino,
-                nomeEvento,
-                km,
-                pneu,
-                combustivelOuBateria,
-                cartao,
-                higiene,
-                carrinho,
+                nome: nome,
+                carro: carro,
+                modelo: modelo,
+                placa: placa,
+                rodizio: rodizio,
+                destino: destino,
+                nomeEvento: nomeEvento,
+                km: km,
+                pneu: pneu,
+                combustivelOuBateria: combustivelOuBateria,
+                cartao: cartao,
+                higiene: higiene,
+                carrinho: carrinho,
                 data: dataFormatada
             };
 
@@ -937,48 +937,21 @@
             fetch('https://script.google.com/macros/s/AKfycbyEUtEI5q9KWeaFe3-QnhX6f1RCAkQ-NCHbvB1aqLO6GdlRFWhc21IDdTFn6BfmADF1/exec', {
                 method: 'POST',
                 body: JSON.stringify(payload),
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 
+                    'Content-Type': 'application/json'
+                }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Resposta da planilha:', data);
-                alert('Registro salvo na planilha com sucesso!');
-            })
-            .catch(error => {
-                console.error('Erro ao salvar na planilha:', error);
-                alert('Erro ao salvar na planilha.');
-            });
-
-
-            // Obter valores
-            const nome = form.nome.value;
-            const carro = form.carro.value;
-            const placa = form.placa.value || 'Não informado';
-            const rodizio = form.rodizio.value || 'Não se aplica';
-            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-            const nomeEvento = form.nomeEvento.value || 'Não informado';
-            const km = form.km.value;
-            const pneu = form.pneu.value === 'Atenção necessária' ? 
-                         `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
-            
-            const isBYD = carro.includes('BYD');
-            const combustivelOuBateria = isBYD ? 
-                `Bateria: ${form.bateria.value}%` : 
-                `Combustível: ${form.combustivel.value || 'Não informado'}`;
-            
-            const cartao = form.cartao.value || 'Não informado';
-            const higiene = form.higiene.value || 'Não informado';
-            const carrinho = form.carrinho.value || 'Não informado';
-            
-            // Formatar data
-            const dataParts = form.data.value.split('-');
-            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
-            
-            // Modelo do caminhão se aplicável
-            const modelo = carro === 'Caminhão' ? form.modelo.value || 'Não informado' : '';
-            
-            // Montar resultado
-            const resultadoTexto = `*NOME:* ${nome}
+                
+                // Montar resultado para exibição
+                const resultadoTexto = `*NOME:* ${nome}
 *CARRO:* ${carro}
 ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *RODÍZIO:* ${rodizio}
@@ -986,27 +959,34 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *NOME DO EVENTO:* ${nomeEvento}
 *KM:* ${km}
 *PNEU:* ${pneu}
-*${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${isBYD ? form.bateria.value + '%' : (form.combustivel.value || 'Não informado')}
+*${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
 *CARTÃO:* ${cartao}
 *HIGIENE:* ${higiene}
 *CARRINHO:* ${carrinho}
 *DATA:* ${dataFormatada}`;
-            
-            // Exibir resultado
-            document.getElementById('resultado').textContent = resultadoTexto;
-            const resultadoContainer = document.getElementById('resultadoContainer');
-            resultadoContainer.style.display = 'block';
-            resultadoContainer.scrollIntoView({ behavior: 'smooth' });
-            
-            // Salvar dados no localStorage para uso no retorno
-            const dadosParaSalvar = {
-                nome: nome,
-                carro: carro,
-                placa: placa,
-                rodizio: rodizio
-            };
-            
-            localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
+                
+                // Exibir resultado
+                document.getElementById('resultado').textContent = resultadoTexto;
+                const resultadoContainer = document.getElementById('resultadoContainer');
+                resultadoContainer.style.display = 'block';
+                resultadoContainer.scrollIntoView({ behavior: 'smooth' });
+                
+                // Salvar dados no localStorage para uso no retorno
+                const dadosParaSalvar = {
+                    nome: nome,
+                    carro: carro,
+                    placa: placa,
+                    rodizio: rodizio
+                };
+                
+                localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
+                
+                alert('Registro salvo com sucesso!');
+            })
+            .catch(error => {
+                console.error('Erro ao salvar na planilha:', error);
+                alert('Erro ao salvar na planilha: ' + error.message);
+            });
         }
 
         function copiarMensagem() {
