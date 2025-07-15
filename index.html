@@ -893,7 +893,40 @@
 
         function salvarRegistro() {
             const form = document.getElementById('formViagem');
-            
+            // Crie o objeto com os dados
+            const payload = {
+            nome,
+            carro,
+            placa,
+            rodizio,
+            destino,
+            nomeEvento,
+            km,
+            pneu,
+            combustivelOuBateria,
+            cartao,
+            higiene,
+            carrinho,
+            data: dataFormatada
+            };
+
+            // Enviar para Google Sheets
+            fetch('https://script.google.com/macros/s/AKfycbyEUtEI5q9KWeaFe3-QnhX6f1RCAkQ-NCHbvB1aqLO6GdlRFWhc21IDdTFn6BfmADF1/exec', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+            console.log('Resposta da planilha:', data);
+            alert('Registro salvo na planilha com sucesso!');
+            })
+            .catch(error => {
+            console.error('Erro ao salvar na planilha:', error);
+            alert('Erro ao salvar na planilha.');
+            });
+
+
             // Obter valores
             const nome = form.nome.value;
             const carro = form.carro.value;
