@@ -736,11 +736,13 @@
                 // Atualiza a placa automaticamente
                 if (mapeamentoPlacas[carroSelecionado]) {
                     placaSelect.innerHTML = `<option value="${mapeamentoPlacas[carroSelecionado]}">${mapeamentoPlacas[carroSelecionado]} (${carroSelecionado})</option>`;
+                } else if (carroSelecionado === 'Caminhão') {
+                    placaSelect.innerHTML = '<option value="">Selecione o modelo primeiro</option>';
                 } else {
                     placaSelect.innerHTML = '<option value="">Não informado</option>';
                 }
                 
-                                // Mostrar/ocultar campos específicos
+                // Mostrar/ocultar campos específicos
                 const isBYD = carroSelecionado.includes('BYD');
                 document.getElementById('combustivel-group').classList.toggle('hidden', isBYD);
                 document.getElementById('bateria-group').classList.toggle('hidden', !isBYD);
@@ -765,8 +767,10 @@
                     'VUC-69': 'DYJ5A69'
                 };
                 
-                if (mapeamentoModeloPlaca[modeloSelecionado]) {
-                    placaSelect.value = mapeamentoModeloPlaca[modeloSelecionado];
+                if (modeloSelecionado && mapeamentoModeloPlaca[modeloSelecionado]) {
+                    placaSelect.innerHTML = `<option value="${mapeamentoModeloPlaca[modeloSelecionado]}">${mapeamentoModeloPlaca[modeloSelecionado]} (${modeloSelecionado})</option>`;
+                } else if (document.getElementById('carro').value === 'Caminhão') {
+                    placaSelect.innerHTML = '<option value="">Selecione o modelo primeiro</option>';
                 }
                 
                 // Atualiza rodízio quando o modelo muda
@@ -932,18 +936,18 @@
                 
                 // Montar resultado para exibição
                 const resultadoTexto = `*NOME:* ${nome}
-        *CARRO:* ${carro}
-        ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
-        *RODÍZIO:* ${rodizio}
-        *DESTINO:* ${destino}
-        *NOME DO EVENTO:* ${nomeEvento}
-        *KM:* ${km}
-        *PNEU:* ${pneu}
-        *${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
-        *CARTÃO:* ${cartao}
-        *HIGIENE:* ${higiene}
-        *CARRINHO:* ${carrinho}
-        *DATA:* ${dataFormatada}`;
+*CARRO:* ${carro}
+${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
+*RODÍZIO:* ${rodizio}
+*DESTINO:* ${destino}
+*NOME DO EVENTO:* ${nomeEvento}
+*KM:* ${km}
+*PNEU:* ${pneu}
+*${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
+*CARTÃO:* ${cartao}
+*HIGIENE:* ${higiene}
+*CARRINHO:* ${carrinho}
+*DATA:* ${dataFormatada}`;
                 
                 // Exibir resultado
                 document.getElementById('resultado').textContent = resultadoTexto;
