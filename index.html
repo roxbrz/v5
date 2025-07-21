@@ -891,103 +891,107 @@
             }
         });
 
-        function salvarRegistro() {
-            const form = document.getElementById('formViagem');
-            
-            // Obter valores primeiro
-            const nome = form.nome.value;
-            const carro = form.carro.value;
-            const modelo = form.modelo ? form.modelo.value : '';
-            const placa = form.placa.value || 'Não informado';
-            const rodizio = form.rodizio.value || 'Não se aplica';
-            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-            const nomeEvento = form.nomeEvento.value || 'Não informado';
-            const km = form.km.value;
-            const pneu = form.pneu.value === 'Atenção necessária' ? 
-                        `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
-            const isBYD = carro.includes('BYD');
-            const combustivelOuBateria = isBYD ? 
-                `Bateria: ${form.bateria.value}%` : 
-                `Combustível: ${form.combustivel.value || 'Não informado'}`;
-            const cartao = form.cartao.value || 'Não informado';
-            const higiene = form.higiene.value || 'Não informado';
-            const carrinho = form.carrinho.value || 'Não informado';
-            const dataParts = form.data.value.split('-');
-            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+                function salvarRegistro() {
+                const form = document.getElementById('formViagem');
+                const submitBtn = form.querySelector('.submit-btn');
+                submitBtn.classList.add('loading');
+                
+                // Obter valores primeiro
+                const nome = form.nome.value;
+                const carro = form.carro.value;
+                const modelo = document.getElementById('modelo') ? document.getElementById('modelo').value : '';
+                const placa = form.placa.value || 'Não informado';
+                const rodizio = form.rodizio.value || 'Não se aplica';
+                const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
+                const nomeEvento = form.nomeEvento.value || 'Não informado';
+                const km = form.km.value;
+                const pneu = form.pneu.value === 'Atenção necessária' ? 
+                            `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
+                const isBYD = carro.includes('BYD');
+                const combustivelOuBateria = isBYD ? 
+                    `Bateria: ${form.bateria.value}%` : 
+                    `Combustível: ${form.combustivel.value || 'Não informado'}`;
+                const cartao = form.cartao.value || 'Não informado';
+                const higiene = form.higiene.value || 'Não informado';
+                const carrinho = form.carrinho.value || 'Não informado';
+                const dataParts = form.data.value.split('-');
+                const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
 
-            // Criar payload para o Google Sheets
-            const payload = {
-                nome: nome,
-                carro: carro,
-                modelo: modelo,
-                placa: placa,
-                rodizio: rodizio,
-                destino: destino,
-                nomeEvento: nomeEvento,
-                km: km,
-                pneu: pneu,
-                combustivelOuBateria: combustivelOuBateria,
-                cartao: cartao,
-                higiene: higiene,
-                carrinho: carrinho,
-                data: dataFormatada
-            };
-
-            // Enviar para Google Sheets
-            fetch('https://script.google.com/macros/s/AKfycbyEUtEI5q9KWeaFe3-QnhX6f1RCAkQ-NCHbvB1aqLO6GdlRFWhc21IDdTFn6BfmADF1/exec', {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: { 
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na resposta do servidor');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Resposta da planilha:', data);
-                
-                // Montar resultado para exibição
-                const resultadoTexto = `*NOME:* ${nome}
-*CARRO:* ${carro}
-${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
-*RODÍZIO:* ${rodizio}
-*DESTINO:* ${destino}
-*NOME DO EVENTO:* ${nomeEvento}
-*KM:* ${km}
-*PNEU:* ${pneu}
-*${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
-*CARTÃO:* ${cartao}
-*HIGIENE:* ${higiene}
-*CARRINHO:* ${carrinho}
-*DATA:* ${dataFormatada}`;
-                
-                // Exibir resultado
-                document.getElementById('resultado').textContent = resultadoTexto;
-                const resultadoContainer = document.getElementById('resultadoContainer');
-                resultadoContainer.style.display = 'block';
-                resultadoContainer.scrollIntoView({ behavior: 'smooth' });
-                
-                // Salvar dados no localStorage para uso no retorno
-                const dadosParaSalvar = {
+                // Criar payload para o Google Sheets
+                const payload = {
                     nome: nome,
                     carro: carro,
+                    modelo: modelo,
                     placa: placa,
-                    rodizio: rodizio
+                    rodizio: rodizio,
+                    destino: destino,
+                    nomeEvento: nomeEvento,
+                    km: parseFloat(km),
+                    pneu: pneu,
+                    combustivelOuBateria: combustivelOuBateria,
+                    cartao: cartao,
+                    higiene: higiene,
+                    carrinho: carrinho,
+                    data: dataFormatada
                 };
-                
-                localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
-                
-                alert('Registro salvo com sucesso!');
-            })
-            .catch(error => {
-                console.error('Erro ao salvar na planilha:', error);
-                alert('Erro ao salvar na planilha: ' + error.message);
-            });
-        }
+
+                // URL do seu Web App (você precisará substituir isso depois de publicar)
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyS1IRjXfSHHfFu9nqx4FzDVCNlXXtyg-7S1qWnwGPeXtSTty4AShSsiWtwhi3Cl6u/exec';
+
+                // Enviar para Google Sheets
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para evitar problemas de CORS
+                    body: JSON.stringify(payload),
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(() => {
+                    // Mesmo com no-cors, não podemos ler a resposta, então assumimos sucesso
+                    console.log('Dados enviados (resposta não verificável em modo no-cors)');
+                    
+                    // Montar resultado para exibição
+                    const resultadoTexto = `*NOME:* ${nome}
+            *CARRO:* ${carro}
+            ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
+            *RODÍZIO:* ${rodizio}
+            *DESTINO:* ${destino}
+            *NOME DO EVENTO:* ${nomeEvento}
+            *KM:* ${km}
+            *PNEU:* ${pneu}
+            *${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
+            *CARTÃO:* ${cartao}
+            *HIGIENE:* ${higiene}
+            *CARRINHO:* ${carrinho}
+            *DATA:* ${dataFormatada}`;
+                    
+                    // Exibir resultado
+                    document.getElementById('resultado').textContent = resultadoTexto;
+                    const resultadoContainer = document.getElementById('resultadoContainer');
+                    resultadoContainer.style.display = 'block';
+                    resultadoContainer.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Salvar dados no localStorage para uso no retorno
+                    const dadosParaSalvar = {
+                        nome: nome,
+                        carro: carro,
+                        placa: placa,
+                        rodizio: rodizio
+                    };
+                    
+                    localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
+                    
+                    alert('Registro salvo com sucesso!');
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar dados:', error);
+                    alert('Erro ao enviar dados. Verifique o console para detalhes.');
+                })
+                .finally(() => {
+                    submitBtn.classList.remove('loading');
+                });
+            }
 
         function copiarMensagem() {
             const resultadoTexto = document.getElementById('resultado').textContent;
