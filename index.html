@@ -515,28 +515,14 @@
             <div class="form-group">
                 <label for="placa">PLACA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Placa do veículo (preenchimento automático)</span></span></label>
                 <select id="placa" name="placa" disabled>
-                    <option value="">Selecione a placa</option>
-                    <option value="EMR4C04">EMR4C04 (Sandero)</option>
-                    <option value="FKE9857">FKE9857 (Spin)</option>
-                    <option value="TLB5B63">TLB5B63 (BYD 63)</option>
-                    <option value="TLF1C04">TLF1C04 (BYD 04)</option>
-                    <option value="RNM2A41">RNM2A41 (Doblo-41)</option>
-                    <option value="RNZ9E98">RNZ9E98 (Doblo-98)</option>
-                    <option value="GBK4A85">GBK4A85 (Saveiro)</option>
-                    <option value="ENJ2154">ENJ2154 (Carens)</option>
-                    <option value="TJY1I19">TJY1I19 (IVECO - DELIVERY-19)</option>
-                    <option value="TJQ5E57">TJQ5E57 (IVECO - DELIVERY-57)</option>
-                    <option value="TJV1H83">TJV1H83 (IVECO - DELIVERY-83)</option>
-                    <option value="TJV1C35">TJV1C35 (IVECO - DELIVERY-35)</option>
-                    <option value="GIT4J12">GIT4J12 (VUC-12)</option>
-                    <option value="DYJ5A69">DYJ5A69 (VUC-69)</option>
+                    <option value="">Selecione o carro primeiro</option>
                 </select>
             </div>
             
             <div class="form-group">
                 <label for="rodizio">RODÍZIO VEÍCULAR<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Rodízio municipal de veículos de São Paulo (não se aplica a veículos elétricos)</span></span></label>
                 <select id="rodizio" name="rodizio" disabled>
-                    <option value="">Selecione a placa primeiro</option>
+                    <option value="">Selecione o carro primeiro</option>
                 </select>
             </div>
             
@@ -687,8 +673,6 @@
                     // Preenche os campos salvos
                     if (data.nome) document.getElementById('nome').value = data.nome;
                     if (data.carro) document.getElementById('carro').value = data.carro;
-                    if (data.placa) document.getElementById('placa').value = data.placa;
-                    if (data.rodizio) document.getElementById('rodizio').value = data.rodizio;
                     
                     // Dispara eventos para atualizar campos dependentes
                     const carroEvent = new Event('change');
@@ -749,14 +733,14 @@
                     'VUC-69': 'DYJ5A69'
                 };
                 
+                // Atualiza a placa automaticamente
                 if (mapeamentoPlacas[carroSelecionado]) {
-                    placaSelect.value = mapeamentoPlacas[carroSelecionado];
-                    placaSelect.disabled = false;
+                    placaSelect.innerHTML = `<option value="${mapeamentoPlacas[carroSelecionado]}">${mapeamentoPlacas[carroSelecionado]} (${carroSelecionado})</option>`;
                 } else {
-                    placaSelect.selectedIndex = 0;
+                    placaSelect.innerHTML = '<option value="">Não informado</option>';
                 }
                 
-                // Mostrar/ocultar campos específicos
+                                // Mostrar/ocultar campos específicos
                 const isBYD = carroSelecionado.includes('BYD');
                 document.getElementById('combustivel-group').classList.toggle('hidden', isBYD);
                 document.getElementById('bateria-group').classList.toggle('hidden', !isBYD);
@@ -783,14 +767,9 @@
                 
                 if (mapeamentoModeloPlaca[modeloSelecionado]) {
                     placaSelect.value = mapeamentoModeloPlaca[modeloSelecionado];
-                    placaSelect.disabled = false;
                 }
                 
                 // Atualiza rodízio quando o modelo muda
-                atualizarRodizio();
-            });
-            
-            document.getElementById('placa').addEventListener('change', function() {
                 atualizarRodizio();
             });
             
@@ -860,7 +839,7 @@
                     rodizioSelect.disabled = true;
                     const option = document.createElement('option');
                     option.value = '';
-                    option.textContent = 'Selecione a placa primeiro';
+                    option.textContent = 'Selecione o carro primeiro';
                     rodizioSelect.appendChild(option);
                     return;
                 }
@@ -891,107 +870,107 @@
             }
         });
 
-                function salvarRegistro() {
-                const form = document.getElementById('formViagem');
-                const submitBtn = form.querySelector('.submit-btn');
-                submitBtn.classList.add('loading');
-                
-                // Obter valores primeiro
-                const nome = form.nome.value;
-                const carro = form.carro.value;
-                const modelo = document.getElementById('modelo') ? document.getElementById('modelo').value : '';
-                const placa = form.placa.value || 'Não informado';
-                const rodizio = form.rodizio.value || 'Não se aplica';
-                const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-                const nomeEvento = form.nomeEvento.value || 'Não informado';
-                const km = form.km.value;
-                const pneu = form.pneu.value === 'Atenção necessária' ? 
-                            `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
-                const isBYD = carro.includes('BYD');
-                const combustivelOuBateria = isBYD ? 
-                    `Bateria: ${form.bateria.value}%` : 
-                    `Combustível: ${form.combustivel.value || 'Não informado'}`;
-                const cartao = form.cartao.value || 'Não informado';
-                const higiene = form.higiene.value || 'Não informado';
-                const carrinho = form.carrinho.value || 'Não informado';
-                const dataParts = form.data.value.split('-');
-                const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
+        function salvarRegistro() {
+            const form = document.getElementById('formViagem');
+            const submitBtn = form.querySelector('.submit-btn');
+            submitBtn.classList.add('loading');
+            
+            // Obter valores primeiro
+            const nome = form.nome.value;
+            const carro = form.carro.value;
+            const modelo = document.getElementById('modelo') ? document.getElementById('modelo').value : '';
+            const placa = form.placa.value || 'Não informado';
+            const rodizio = form.rodizio.value || 'Não se aplica';
+            const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
+            const nomeEvento = form.nomeEvento.value || 'Não informado';
+            const km = form.km.value;
+            const pneu = form.pneu.value === 'Atenção necessária' ? 
+                        `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
+            const isBYD = carro.includes('BYD');
+            const combustivelOuBateria = isBYD ? 
+                `Bateria: ${form.bateria.value}%` : 
+                `Combustível: ${form.combustivel.value || 'Não informado'}`;
+            const cartao = form.cartao.value || 'Não informado';
+            const higiene = form.higiene.value || 'Não informado';
+            const carrinho = form.carrinho.value || 'Não informado';
+            const dataParts = form.data.value.split('-');
+            const dataFormatada = `${dataParts[2]}/${dataParts[1]}/${dataParts[0]}`;
 
-                // Criar payload para o Google Sheets
-                const payload = {
+            // Criar payload para o Google Sheets
+            const payload = {
+                nome: nome,
+                carro: carro,
+                modelo: modelo,
+                placa: placa,
+                rodizio: rodizio,
+                destino: destino,
+                nomeEvento: nomeEvento,
+                km: parseFloat(km),
+                pneu: pneu,
+                combustivelOuBateria: combustivelOuBateria,
+                cartao: cartao,
+                higiene: higiene,
+                carrinho: carrinho,
+                data: dataFormatada
+            };
+
+            // URL do seu Web App (você precisará substituir isso depois de publicar)
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbz3JHf1Z1LIaALI8IXueeR3Y1VlG6ry5gKdor5ZANf90FF78_Vd-g_oudi0XCqMubwd/exec';
+
+            // Enviar para Google Sheets
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Importante para evitar problemas de CORS
+                body: JSON.stringify(payload),
+                headers: { 
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(() => {
+                // Mesmo com no-cors, não podemos ler a resposta, então assumimos sucesso
+                console.log('Dados enviados (resposta não verificável em modo no-cors)');
+                
+                // Montar resultado para exibição
+                const resultadoTexto = `*NOME:* ${nome}
+        *CARRO:* ${carro}
+        ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
+        *RODÍZIO:* ${rodizio}
+        *DESTINO:* ${destino}
+        *NOME DO EVENTO:* ${nomeEvento}
+        *KM:* ${km}
+        *PNEU:* ${pneu}
+        *${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
+        *CARTÃO:* ${cartao}
+        *HIGIENE:* ${higiene}
+        *CARRINHO:* ${carrinho}
+        *DATA:* ${dataFormatada}`;
+                
+                // Exibir resultado
+                document.getElementById('resultado').textContent = resultadoTexto;
+                const resultadoContainer = document.getElementById('resultadoContainer');
+                resultadoContainer.style.display = 'block';
+                resultadoContainer.scrollIntoView({ behavior: 'smooth' });
+                
+                // Salvar dados no localStorage para uso no retorno
+                const dadosParaSalvar = {
                     nome: nome,
                     carro: carro,
-                    modelo: modelo,
                     placa: placa,
-                    rodizio: rodizio,
-                    destino: destino,
-                    nomeEvento: nomeEvento,
-                    km: parseFloat(km),
-                    pneu: pneu,
-                    combustivelOuBateria: combustivelOuBateria,
-                    cartao: cartao,
-                    higiene: higiene,
-                    carrinho: carrinho,
-                    data: dataFormatada
+                    rodizio: rodizio
                 };
-
-                // URL do seu Web App (você precisará substituir isso depois de publicar)
-                const scriptUrl = 'https://script.google.com/macros/s/AKfycbz3JHf1Z1LIaALI8IXueeR3Y1VlG6ry5gKdor5ZANf90FF78_Vd-g_oudi0XCqMubwd/exec';
-
-                // Enviar para Google Sheets
-                fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors', // Importante para evitar problemas de CORS
-                    body: JSON.stringify(payload),
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(() => {
-                    // Mesmo com no-cors, não podemos ler a resposta, então assumimos sucesso
-                    console.log('Dados enviados (resposta não verificável em modo no-cors)');
-                    
-                    // Montar resultado para exibição
-                    const resultadoTexto = `*NOME:* ${nome}
-            *CARRO:* ${carro}
-            ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
-            *RODÍZIO:* ${rodizio}
-            *DESTINO:* ${destino}
-            *NOME DO EVENTO:* ${nomeEvento}
-            *KM:* ${km}
-            *PNEU:* ${pneu}
-            *${isBYD ? 'BATERIA' : 'COMBUSTÍVEL'}:* ${combustivelOuBateria}
-            *CARTÃO:* ${cartao}
-            *HIGIENE:* ${higiene}
-            *CARRINHO:* ${carrinho}
-            *DATA:* ${dataFormatada}`;
-                    
-                    // Exibir resultado
-                    document.getElementById('resultado').textContent = resultadoTexto;
-                    const resultadoContainer = document.getElementById('resultadoContainer');
-                    resultadoContainer.style.display = 'block';
-                    resultadoContainer.scrollIntoView({ behavior: 'smooth' });
-                    
-                    // Salvar dados no localStorage para uso no retorno
-                    const dadosParaSalvar = {
-                        nome: nome,
-                        carro: carro,
-                        placa: placa,
-                        rodizio: rodizio
-                    };
-                    
-                    localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
-                    
-                    alert('Registro salvo com sucesso!');
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar dados:', error);
-                    alert('Erro ao enviar dados. Verifique o console para detalhes.');
-                })
-                .finally(() => {
-                    submitBtn.classList.remove('loading');
-                });
-            }
+                
+                localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
+                
+                alert('Registro salvo com sucesso!');
+            })
+            .catch(error => {
+                console.error('Erro ao enviar dados:', error);
+                alert('Erro ao enviar dados. Verifique o console para detalhes.');
+            })
+            .finally(() => {
+                submitBtn.classList.remove('loading');
+            });
+        }
 
         function copiarMensagem() {
             const resultadoTexto = document.getElementById('resultado').textContent;
