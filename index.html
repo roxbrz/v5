@@ -103,26 +103,55 @@
             margin-bottom: 25px;
             width: 100%;
         }
-        
+
         .trip-btn {
-            padding: 12px 24px;
+            padding: 7px 16px;
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: var(--asaph-transition);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            border-radius: 5px;
             background-color: var(--asaph-border);
             color: var(--asaph-light);
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--asaph-transition);
+            margin-bottom: 0;
+            user-select: none;
+            outline: none;
+            box-shadow: none;
+            min-width: 60px;
             flex: 1;
             max-width: 180px;
             text-align: center;
         }
-        
         .trip-btn:hover {
-            transform: translateY(-2px);
+            background-color: var(--asaph-accent-hover);
+            color: var(--asaph-white);
+        }
+        .trip-btn.active, .trip-btn:active {
+            background-color: var(--asaph-accent);
+            color: var(--asaph-white);
+            box-shadow: 0 2px 8px rgba(8, 120, 73, 0.15);
+        }
+        }
+        #carrinhoBtnGroup {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+            justify-content: flex-start;
+        }
+        @media (max-width: 640px) {
+            #carrinhoBtnGroup {
+                gap: 7px;
+            }
+            .carrinho-btn {
+                padding: 7px 10px;
+                font-size: 0.88rem;
+                min-width: 48px;
+            }
+        }
         }
         
         .trip-btn.active {
@@ -606,7 +635,13 @@
             
             <div class="form-group">
                 <label for="carrinho">CARRINHO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Carrinho de transporte utilizado</span></span></label>
-                <input type="text" id="carrinho" name="carrinho" placeholder="Ex: Cachorrinho, azul etc...">
+                <div id="carrinhoBtnGroup" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+                    <button type="button" class="trip-btn" data-value="Não">Não</button>
+                    <button type="button" class="trip-btn" data-value="Azul">Azul</button>
+                    <button type="button" class="trip-btn" data-value="Prancha">Prancha</button>
+                </div>
+                <input type="hidden" id="carrinho" name="carrinho" value="">
+
             </div>
             
             <div class="form-group">
@@ -634,6 +669,38 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Botões interativos para carrinho
+            const carrinhoBtns = document.querySelectorAll('#carrinhoBtnGroup .trip-btn');
+            const carrinhoInput = document.getElementById('carrinho');
+            function setCarrinhoSelecionado(valor) {
+                carrinhoBtns.forEach(btn => {
+                    if (btn.getAttribute('data-value') === valor) {
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-pressed', 'true');
+                    } else {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-pressed', 'false');
+                    }
+                });
+                carrinhoInput.value = valor;
+            }
+            carrinhoBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    setCarrinhoSelecionado(this.getAttribute('data-value'));
+                });
+                btn.addEventListener('keydown', function(e) {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        setCarrinhoSelecionado(this.getAttribute('data-value'));
+                    }
+                });
+            });
+            // Limpa seleção ao resetar
+            const oldClearNonSavedFields = clearNonSavedFields;
+            clearNonSavedFields = function() {
+                oldClearNonSavedFields();
+                setCarrinhoSelecionado('');
+            }
             // Função para adicionar/remover classe 'preenchido' em campos preenchidos
             function atualizarBordaPreenchido(element) {
                 if (
@@ -834,13 +901,16 @@
             // Evento de submit
             document.getElementById('formViagem').addEventListener('submit', function(event) {
                 event.preventDefault();
-                
                 const submitBtn = this.querySelector('.submit-btn');
+                // Salva o texto original do botão em um atributo data
+                if (!submitBtn.hasAttribute('data-original-text')) {
+                    submitBtn.setAttribute('data-original-text', submitBtn.textContent);
+                }
                 submitBtn.classList.add('loading');
-                
+                submitBtn.textContent = 'AGUARDE...';
                 setTimeout(() => {
                     salvarRegistro();
-                    submitBtn.classList.remove('loading');
+                    // Remoção da classe e restauração do texto será feita dentro de salvarRegistro após o alert
                 }, 500);
             });
             
@@ -904,7 +974,6 @@
         function salvarRegistro() {
             const form = document.getElementById('formViagem');
             const submitBtn = form.querySelector('.submit-btn');
-            submitBtn.classList.add('loading');
             
             // Obter valores primeiro
             const nome = form.nome.value;
@@ -993,10 +1062,20 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
                 localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
                 
                 alert('Registro salvo com sucesso!');
+                // Restaurar texto do botão após exibir o resultado
+                if (submitBtn.hasAttribute('data-original-text')) {
+                    submitBtn.textContent = submitBtn.getAttribute('data-original-text');
+                    submitBtn.removeAttribute('data-original-text');
+                }
             })
             .catch(error => {
                 console.error('Erro ao enviar dados:', error);
                 alert('Erro ao enviar dados. Verifique o console para detalhes.');
+                // Restaurar texto do botão em caso de erro
+                if (submitBtn.hasAttribute('data-original-text')) {
+                    submitBtn.textContent = submitBtn.getAttribute('data-original-text');
+                    submitBtn.removeAttribute('data-original-text');
+                }
             })
             .finally(() => {
                 submitBtn.classList.remove('loading');
