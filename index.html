@@ -168,6 +168,12 @@
             border-color: var(--asaph-accent);
             box-shadow: 0 0 0 3px rgba(8, 120, 73, 0.2);
         }
+
+        /* Borda verde suave para campos preenchidos */
+        .preenchido {
+            border-color: #4be18a !important;
+            box-shadow: 0 0 0 2px rgba(75, 225, 138, 0.18) !important;
+        }
         
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b0b0b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -511,21 +517,21 @@
                     <option value="VUC-69">VUC-69</option>
                 </select>
             </div>
-            
-            <div class="form-group">
+
+            <div class="form-group hidden">
                 <label for="placa">PLACA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Placa do veículo (preenchimento automático)</span></span></label>
                 <select id="placa" name="placa" disabled>
                     <option value="">Selecione o carro primeiro</option>
                 </select>
             </div>
-            
-            <div class="form-group">
+
+            <div class="form-group hidden">
                 <label for="rodizio">RODÍZIO VEÍCULAR<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Rodízio municipal de veículos de São Paulo (não se aplica a veículos elétricos)</span></span></label>
                 <select id="rodizio" name="rodizio" disabled>
                     <option value="">Selecione o carro primeiro</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="destino" class="required-field">DESTINO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Local de destino da viagem</span></span></label>
                 <select id="destino" name="destino" required>
@@ -600,13 +606,14 @@
             
             <div class="form-group">
                 <label for="carrinho">CARRINHO<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Carrinho de transporte utilizado</span></span></label>
-                <input type="text" id="carrinho" name="carrinho" placeholder="Ex: Carrinho preto grande">
+                <input type="text" id="carrinho" name="carrinho" placeholder="Ex: Cachorrinho, azul etc...">
             </div>
             
             <div class="form-group">
-                <label for="data" class="required-field">DATA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Data da viagem (preenchimento automático)</span></span></label>
-                <input type="date" id="data" name="data" required>
-            </div>
+                <div class="form-group hidden">
+                    <label for="data" class="required-field">DATA<span class="tooltip"><span class="tooltip-icon">?</span><span class="tooltip-text">Data da viagem (preenchimento automático)</span></span></label>
+                    <input type="date" id="data" name="data" required>
+                </div>
             
             <div class="form-group">
                 <button type="submit" class="submit-btn">SALVAR REGISTRO</button>
@@ -627,6 +634,26 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Função para adicionar/remover classe 'preenchido' em campos preenchidos
+            function atualizarBordaPreenchido(element) {
+                if (
+                    (element.tagName === 'INPUT' && element.type !== 'checkbox' && element.type !== 'radio' && element.value.trim() !== '') ||
+                    (element.tagName === 'SELECT' && element.value && element.value !== '')
+                ) {
+                    element.classList.add('preenchido');
+                } else {
+                    element.classList.remove('preenchido');
+                }
+            }
+
+            // Aplica para todos os inputs e selects do formulário
+            document.querySelectorAll('#formViagem input, #formViagem select').forEach(function(el) {
+                // Atualiza ao carregar
+                atualizarBordaPreenchido(el);
+                // Atualiza ao digitar ou mudar
+                el.addEventListener('input', function() { atualizarBordaPreenchido(el); });
+                el.addEventListener('change', function() { atualizarBordaPreenchido(el); });
+            });
             // Configura data atual
             const today = new Date();
             const todayFormatted = today.toISOString().split('T')[0];
