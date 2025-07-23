@@ -651,7 +651,7 @@
                 </div>
             
             <div class="form-group">
-                <button type="submit" class="submit-btn">SALVAR REGISTRO</button>
+                <button type="submit" class="submit-btn" id="salvarRegistroBtn">SALVAR REGISTRO</button>
             </div>
         </form>
         
@@ -899,9 +899,10 @@
             });
             
             // Evento de submit
+            // Garante que só o botão SALVAR REGISTRO dispara salvarRegistro
             document.getElementById('formViagem').addEventListener('submit', function(event) {
                 event.preventDefault();
-                const submitBtn = this.querySelector('.submit-btn');
+                const submitBtn = document.getElementById('salvarRegistroBtn');
                 // Salva o texto original do botão em um atributo data
                 if (!submitBtn.hasAttribute('data-original-text')) {
                     submitBtn.setAttribute('data-original-text', submitBtn.textContent);
@@ -913,18 +914,20 @@
                     // Remoção da classe e restauração do texto será feita dentro de salvarRegistro após o alert
                 }, 500);
             });
-            
-            document.getElementById('copyBtn').addEventListener('click', copiarMensagem);
+
+            // Botão copiar mensagem só copia, nunca envia
+            document.getElementById('copyBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                copiarMensagem();
+            });
             
             // Função para atualizar o rodízio veicular
             function atualizarRodizio() {
                 const carroSelecionado = document.getElementById('carro').value;
                 const placaSelecionada = document.getElementById('placa').value;
                 const rodizioSelect = document.getElementById('rodizio');
-                
                 // Limpa as opções existentes
                 rodizioSelect.innerHTML = '';
-                
                 // Se for veículo elétrico (BYD), não aplica rodízio
                 if (carroSelecionado.includes('BYD')) {
                     rodizioSelect.disabled = true;
@@ -934,7 +937,6 @@
                     rodizioSelect.appendChild(option);
                     return;
                 }
-                
                 // Se não houver placa selecionada
                 if (!placaSelecionada) {
                     rodizioSelect.disabled = true;
@@ -944,10 +946,8 @@
                     rodizioSelect.appendChild(option);
                     return;
                 }
-                
                 // Pega o último dígito da placa
                 const ultimoDigito = placaSelecionada.charAt(placaSelecionada.length - 1);
-                
                 // Determina o dia do rodízio
                 let diaRodizio = '';
                 if (['1', '2'].includes(ultimoDigito)) {
@@ -961,7 +961,6 @@
                 } else if (['9', '0'].includes(ultimoDigito)) {
                     diaRodizio = 'Sexta-feira';
                 }
-                
                 // Atualiza o select
                 rodizioSelect.disabled = false;
                 const option = document.createElement('option');
@@ -1088,21 +1087,18 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
             textarea.value = resultadoTexto;
             document.body.appendChild(textarea);
             textarea.select();
-            
             try {
                 document.execCommand('copy');
                 const copyBtn = document.getElementById('copyBtn');
                 copyBtn.textContent = '✓ COPIADO!';
                 copyBtn.style.backgroundColor = '#087849';
-                
                 setTimeout(() => {
                     copyBtn.textContent = 'COPIAR MENSAGEM';
                     copyBtn.style.backgroundColor = '';
                 }, 2000);
             } catch (err) {
-                console.error('Erro ao copiar:', err);
+                // Falha silenciosa
             }
-            
             document.body.removeChild(textarea);
         }
     </script>
