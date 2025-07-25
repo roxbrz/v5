@@ -490,6 +490,8 @@
         <div class="trip-type-buttons">
             <button type="button" id="inicioBtn" class="trip-btn active">INÍCIO</button>
             <button type="button" id="retornoBtn" class="trip-btn">RETORNO</button>
+            <button type="button" id="videoBtn" class="trip-btn">VÍDEO</button>
+            <input type="file" id="videoInput" accept="video/*" style="display:none;">
         </div>
         
         <form id="formViagem">
@@ -569,9 +571,10 @@
                     <option value="ASAPH">ASAPH</option>
                     <option value="Distrito-Anhembi">Distrito Anhembi</option>
                     <option value="Expo-Center-Norte">Expo-Center Norte</option>
+                    <option value="Frei Caneca">Frei Caneca</option>
                     <option value="Pro Magno">Pro Magno</option>
                     <option value="SP-EXPO">SP-EXPO</option>
-                    <option value="TRANSAMERICA">TRANSAMERICA</option>
+                    <option value="Transamerica">Transamerica</option>
                     <option value="Outro">Outro</option>
                 </select>
                 <input type="text" id="outroDestino" name="outroDestino" placeholder="Especifique outro destino" style="display: none; margin-top: 10px;">
@@ -669,6 +672,40 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Upload de vídeo
+            const videoBtn = document.getElementById('videoBtn');
+            const videoInput = document.getElementById('videoInput');
+            videoBtn.addEventListener('click', function() {
+                videoInput.click();
+            });
+            videoInput.addEventListener('change', function() {
+                if (videoInput.files.length === 0) return;
+                const file = videoInput.files[0];
+                const formData = new FormData();
+                formData.append('video', file);
+                // Mostra carregando no botão
+                videoBtn.textContent = 'Enviando...';
+                videoBtn.disabled = true;
+                fetch('https://myasaph.info/carro/Videos/upload_video.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Vídeo enviado com sucesso!');
+                    } else {
+                        alert('Falha ao enviar o vídeo.');
+                    }
+                })
+                .catch(() => {
+                    alert('Erro ao enviar o vídeo.');
+                })
+                .finally(() => {
+                    videoBtn.textContent = 'VÍDEO';
+                    videoBtn.disabled = false;
+                    videoInput.value = '';
+                });
+            });
             // Botões interativos para carrinho
             const carrinhoBtns = document.querySelectorAll('#carrinhoBtnGroup .trip-btn');
             const carrinhoInput = document.getElementById('carrinho');
@@ -763,15 +800,29 @@
                 const savedData = localStorage.getItem('asaphViagemData');
                 if (savedData) {
                     const data = JSON.parse(savedData);
-                    
                     // Preenche os campos salvos
                     if (data.nome) document.getElementById('nome').value = data.nome;
                     if (data.carro) document.getElementById('carro').value = data.carro;
-                    
+                    if (data.pneu) document.getElementById('pneu').value = data.pneu;
+                    if (data.cartao) document.getElementById('cartao').value = data.cartao;
+                    if (data.higiene) document.getElementById('higiene').value = data.higiene;
+                    if (data.carrinho) {
+                        // Seleciona o botão correto do carrinho
+                        const carrinhoBtns = document.querySelectorAll('#carrinhoBtnGroup .trip-btn');
+                        carrinhoBtns.forEach(btn => {
+                            if (btn.getAttribute('data-value') === data.carrinho) {
+                                btn.classList.add('active');
+                                btn.setAttribute('aria-pressed', 'true');
+                            } else {
+                                btn.classList.remove('active');
+                                btn.setAttribute('aria-pressed', 'false');
+                            }
+                        });
+                        document.getElementById('carrinho').value = data.carrinho;
+                    }
                     // Dispara eventos para atualizar campos dependentes
                     const carroEvent = new Event('change');
                     document.getElementById('carro').dispatchEvent(carroEvent);
-                    
                     // Foca no próximo campo a ser preenchido
                     document.getElementById('destino').focus();
                 }
@@ -1042,7 +1093,8 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
 *CARTÃO:* ${cartao}
 *HIGIENE:* ${higiene}
 *CARRINHO:* ${carrinho}
-*DATA:* ${dataFormatada}`;
+*DATA:* ${dataFormatada}
+\nRegistro de Viagens:\nhttps://myasaph.info/carro/`;
                 
                 // Exibir resultado
                 document.getElementById('resultado').textContent = resultadoTexto;
@@ -1055,9 +1107,12 @@ ${modelo ? `*MODELO:* ${modelo}\n` : ''}*PLACA:* ${placa}
                     nome: nome,
                     carro: carro,
                     placa: placa,
-                    rodizio: rodizio
+                    rodizio: rodizio,
+                    pneu: form.pneu.value,
+                    cartao: form.cartao.value,
+                    higiene: form.higiene.value,
+                    carrinho: form.carrinho.value
                 };
-                
                 localStorage.setItem('asaphViagemData', JSON.stringify(dadosParaSalvar));
                 
                 alert('Registro salvo com sucesso!');
