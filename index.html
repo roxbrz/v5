@@ -832,10 +832,13 @@
             destinoSelect.addEventListener('change', function() {
                 if (this.value === 'ASAPH') {
                     asaphOptionsDiv.style.display = 'block';
-                    // Nome do evento só aparece se tipo ASAPH for 'Outro'
                     if (asaphTipoSelect.value === 'Outro') {
-                        nomeEventoField.style.display = 'block';
+                        motivoOutroAsaphInput.style.display = 'block';
+                        nomeEventoField.style.display = 'none';
+                        nomeEventoField.value = '';
                     } else {
+                        motivoOutroAsaphInput.style.display = 'none';
+                        motivoOutroAsaphInput.value = '';
                         nomeEventoField.style.display = 'none';
                         nomeEventoField.value = '';
                     }
@@ -854,7 +857,8 @@
                 if (destinoSelect.value === 'ASAPH') {
                     if (this.value === 'Outro') {
                         motivoOutroAsaphInput.style.display = 'block';
-                        nomeEventoField.style.display = 'block';
+                        nomeEventoField.style.display = 'none';
+                        nomeEventoField.value = '';
                     } else {
                         motivoOutroAsaphInput.style.display = 'none';
                         motivoOutroAsaphInput.value = '';
@@ -1044,8 +1048,10 @@
             if (form.destino.value === 'ASAPH') {
                 if (form.asaphTipo.value === 'Inicio' || form.asaphTipo.value === 'Final') {
                     nomeEvento = form.asaphTipo.value;
+                } else if (form.asaphTipo.value === 'Outro') {
+                    nomeEvento = form.motivoOutroAsaph.value || 'Não informado';
                 } else {
-                    nomeEvento = form.nomeEvento.value || 'Não informado';
+                    nomeEvento = 'Não informado';
                 }
             } else {
                 nomeEvento = form.nomeEvento.value || 'Não informado';
