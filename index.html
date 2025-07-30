@@ -490,8 +490,6 @@
         <div class="trip-type-buttons">
             <button type="button" id="inicioBtn" class="trip-btn active">INÍCIO</button>
             <button type="button" id="retornoBtn" class="trip-btn">RETORNO</button>
-            <button type="button" id="videoBtn" class="trip-btn">VÍDEO</button>
-            <input type="file" id="videoInput" accept="video/*" style="display:none;">
         </div>
         
         <form id="formViagem">
@@ -577,6 +575,16 @@
                     <option value="Transamerica">Transamerica</option>
                     <option value="Outro">Outro</option>
                 </select>
+                <div id="asaphOptions" style="display:none; margin-top:10px;">
+                    <label for="asaphTipo">Tipo de destino ASAPH:</label>
+                    <select id="asaphTipo" name="asaphTipo">
+                        <option value="">Selecione...</option>
+                        <option value="Inicio">Início</option>
+                        <option value="Final">Final</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <input type="text" id="motivoOutroAsaph" name="motivoOutroAsaph" placeholder="Motivo (se selecionou Outro)" style="display:none; margin-top:10px;">
                 <input type="text" id="outroDestino" name="outroDestino" placeholder="Especifique outro destino" style="display: none; margin-top: 10px;">
                 <input type="text" id="nomeEvento" name="nomeEvento" placeholder="Nome do evento" style="display: none; margin-top: 10px;">
             </div>
@@ -672,40 +680,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Upload de vídeo
-            const videoBtn = document.getElementById('videoBtn');
-            const videoInput = document.getElementById('videoInput');
-            videoBtn.addEventListener('click', function() {
-                videoInput.click();
-            });
-            videoInput.addEventListener('change', function() {
-                if (videoInput.files.length === 0) return;
-                const file = videoInput.files[0];
-                const formData = new FormData();
-                formData.append('video', file);
-                // Mostra carregando no botão
-                videoBtn.textContent = 'Enviando...';
-                videoBtn.disabled = true;
-                fetch('https://myasaph.info/carro/Videos/upload_video.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Vídeo enviado com sucesso!');
-                    } else {
-                        alert('Falha ao enviar o vídeo.');
-                    }
-                })
-                .catch(() => {
-                    alert('Erro ao enviar o vídeo.');
-                })
-                .finally(() => {
-                    videoBtn.textContent = 'VÍDEO';
-                    videoBtn.disabled = false;
-                    videoInput.value = '';
-                });
-            });
             // Botões interativos para carrinho
             const carrinhoBtns = document.querySelectorAll('#carrinhoBtnGroup .trip-btn');
             const carrinhoInput = document.getElementById('carrinho');
@@ -848,12 +822,34 @@
             }
             
             // Mostrar/ocultar campos conforme seleções
-            document.getElementById('destino').addEventListener('change', function() {
-                const outroDestinoField = document.getElementById('outroDestino');
-                const nomeEventoField = document.getElementById('nomeEvento');
+            const destinoSelect = document.getElementById('destino');
+            const asaphOptionsDiv = document.getElementById('asaphOptions');
+            const asaphTipoSelect = document.getElementById('asaphTipo');
+            const motivoOutroAsaphInput = document.getElementById('motivoOutroAsaph');
+            const outroDestinoField = document.getElementById('outroDestino');
+            const nomeEventoField = document.getElementById('nomeEvento');
+
+            destinoSelect.addEventListener('change', function() {
+                if (this.value === 'ASAPH') {
+                    asaphOptionsDiv.style.display = 'block';
+                } else {
+                    asaphOptionsDiv.style.display = 'none';
+                    asaphTipoSelect.value = '';
+                    motivoOutroAsaphInput.style.display = 'none';
+                    motivoOutroAsaphInput.value = '';
+                }
                 outroDestinoField.style.display = this.value === 'Outro' ? 'block' : 'none';
                 nomeEventoField.style.display = this.value ? 'block' : 'none';
                 if (this.value !== 'Outro') outroDestinoField.value = '';
+            });
+
+            asaphTipoSelect.addEventListener('change', function() {
+                if (this.value === 'Outro') {
+                    motivoOutroAsaphInput.style.display = 'block';
+                } else {
+                    motivoOutroAsaphInput.style.display = 'none';
+                    motivoOutroAsaphInput.value = '';
+                }
             });
             
             document.getElementById('carro').addEventListener('change', function() {
