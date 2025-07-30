@@ -1040,7 +1040,16 @@
             const placa = form.placa.value || 'Não informado';
             const rodizio = form.rodizio.value || 'Não se aplica';
             const destino = form.destino.value === 'Outro' ? form.outroDestino.value : form.destino.value;
-            const nomeEvento = form.nomeEvento.value || 'Não informado';
+            let nomeEvento;
+            if (form.destino.value === 'ASAPH') {
+                if (form.asaphTipo.value === 'Inicio' || form.asaphTipo.value === 'Final') {
+                    nomeEvento = form.asaphTipo.value;
+                } else {
+                    nomeEvento = form.nomeEvento.value || 'Não informado';
+                }
+            } else {
+                nomeEvento = form.nomeEvento.value || 'Não informado';
+            }
             const km = form.km.value;
             const pneu = form.pneu.value === 'Atenção necessária' ? 
                         `${form.pneu.value} (${form.obsPneu.value})` : form.pneu.value;
